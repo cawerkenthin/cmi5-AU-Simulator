@@ -1,0 +1,16 @@
+﻿body {
+    background-color: #eee;
+    padding-bottom: 40px;
+    padding-top: 40px;
+    font-size: 14px;
+}
+.form-sim {
+    margin: 0 auto;
+    padding: 4px;
+}
+.form-sim .form-sim-heading, .form-sim .checkbox {
+    margin-bottom: 10px;
+}
+input {
+    margin: 4px 0;
+}

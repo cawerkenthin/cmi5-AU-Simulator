@@ -1,0 +1,30 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="MobileLearner.master.cs" Inherits="MobileLearner.MasterPages.MobileLearner" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title></title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" type="text/javascript"></script>
+    <script src='<%# Page.ResolveClientUrl("../Scripts/number-polyfill.min.js") %>' type="text/javascript"></script>
+    <link href='<%# Page.ResolveClientUrl("../Content/bootstrap.min.css") %>' rel="stylesheet" type="text/css" />    
+    <link href='<%# Page.ResolveClientUrl("../Content/bootstrap-theme.min.css") %>' rel="stylesheet" type="text/css" />
+    <link href='<%# Page.ResolveClientUrl("../Content/number-polyfill.min.css") %>' rel="stylesheet" type="text/css" />
+    <asp:ContentPlaceHolder ID="cntHead" runat="server" />
+</head>
+<body>
+    <div style="top: 0;">
+       
+        <asp:ContentPlaceHolder ID="cntBody" runat="server" />
+    </div>    
+    <script src='<%# Page.ResolveClientUrl("../Scripts/bootstrap.min.js") %>' type="text/javascript"></script>
+
+</body>
+</html>
