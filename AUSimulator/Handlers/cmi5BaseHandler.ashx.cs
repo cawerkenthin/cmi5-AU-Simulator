@@ -8,9 +8,6 @@ using TinCan;
 
 namespace AUSimulator.Handlers
 {
-    /// <summary>
-    /// Summary description for cmi5BaseHandler
-    /// </summary>
     public class cmi5BaseHandler : IHttpHandler
     {
         protected string endPoint { get; set; }
@@ -46,6 +43,10 @@ namespace AUSimulator.Handlers
             };
         }
 
+        public virtual void ProcessRequest(HttpContext context)
+        {
+        }
+
         protected void SetCommonParms(NameValueCollection queryString)
         {
             endPoint = queryString["endpoint"];
@@ -56,10 +57,6 @@ namespace AUSimulator.Handlers
 
             var actorObject = JObject.Parse(actorJSON);
             actor = new Agent(actorObject);
-        }
-
-        public virtual void ProcessRequest(HttpContext context)
-        {
         }
 
         public bool IsReusable

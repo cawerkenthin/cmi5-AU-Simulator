@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
 using AUSimulator.Classes.Pages;
 
 namespace AUSimulator
@@ -17,8 +13,6 @@ namespace AUSimulator
             var fetchUrl = Request.QueryString["fetch"];
 
             txtAuthToken.ToolTip = fetchUrl;
-
-
         }
     }
 }
