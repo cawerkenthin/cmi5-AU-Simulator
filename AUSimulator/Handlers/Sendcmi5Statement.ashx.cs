@@ -7,9 +7,6 @@ using Extensions = TinCan.Extensions;
 
 namespace AUSimulator.Handlers
 {
-    /// <summary>
-    /// Summary description for Sendcmi5Statement
-    /// </summary>
     public class Sendcmi5Statement : cmi5BaseHandler
     {
         public override void ProcessRequest(HttpContext ct)
@@ -26,7 +23,7 @@ namespace AUSimulator.Handlers
             var complete = ct.Request.QueryString["complete"];
             var progress = ct.Request.QueryString["progress"];
 
-            var verb = GetVerb(verbName);
+            var verb = Getcmi5Verb(verbName);
 
             var context = new Context
             {
@@ -52,6 +49,7 @@ namespace AUSimulator.Handlers
                 });
             }
 
+            // All "cmi5 defined" statements must include the sessionId
             context.extensions = new Extensions(JObject.Parse(
                     "{\"http://purl.org/xapi/cmi5/context/extensions/sessionid\": \"" + sessionId + "\"}"
             ));
@@ -108,6 +106,7 @@ namespace AUSimulator.Handlers
                 statement.result = result;
             }
 
+            // Send the statement
             var lrs = GetLRS();
             var lrsResponse = lrs.SaveStatement(statement);
             if (lrsResponse.success && string.IsNullOrWhiteSpace(lrsResponse.errMsg))
@@ -119,7 +118,7 @@ namespace AUSimulator.Handlers
             ct.Response.Write("FAILED: " + lrsResponse.errMsg);
         }
 
-        protected Verb GetVerb(string verbName)
+        protected Verb Getcmi5Verb(string verbName)
         {
             var verb = new Verb { display = new LanguageMap() };
             switch (verbName.ToUpperInvariant())
