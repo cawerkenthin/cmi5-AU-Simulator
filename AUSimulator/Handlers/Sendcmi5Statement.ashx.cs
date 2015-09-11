@@ -109,13 +109,32 @@ namespace AUSimulator.Handlers
             // Send the statement
             var lrs = GetLRS();
             var lrsResponse = lrs.SaveStatement(statement);
+
+            var oSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
             if (lrsResponse.success && string.IsNullOrWhiteSpace(lrsResponse.errMsg))
             {
-                ct.Response.Write("Saved " + lrsResponse.content.id);
+                //ct.Response.Write("Saved " + lrsResponse.content.id);
+                ct.Response.Write(oSerializer.Serialize(
+                    new returnObj
+                    {
+                        HasError = 0,
+                        ErrorMessage = Convert.ToString(statement.id)
+                    }));
                 return;
             }
 
-            ct.Response.Write("FAILED: " + lrsResponse.errMsg);
+            ct.Response.Write(oSerializer.Serialize(
+                    new returnObj
+                    {
+                        HasError = 1,
+                        ErrorMessage = lrsResponse.errMsg
+                    }));
+        }
+
+        protected struct returnObj
+        {
+            public int HasError { get; set; }
+            public string ErrorMessage { get; set; }
         }
 
         protected Verb Getcmi5Verb(string verbName)
