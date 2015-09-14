@@ -59,7 +59,8 @@ namespace AUSimulator.Handlers
                 actor = actor,
                 verb = verb,
                 target = activity,
-                context = context
+                context = context,
+                timestamp = DateTime.UtcNow
             };
 
             // Is there a duration value?
