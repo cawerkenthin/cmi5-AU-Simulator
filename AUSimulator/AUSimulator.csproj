@@ -88,9 +88,16 @@
     <Content Include="Handlers\Sendcmi5Statement.ashx" />
     <Content Include="Handlers\cmi5BaseHandler.ashx" />
     <None Include="Properties\PublishProfiles\LocalIIS.pubxml" />
+    <Content Include="Scripts\cmi5AUSimulator.min.js.map">
+      <DependentUpon>cmi5AUSimulator.min.js</DependentUpon>
+    </Content>
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\cmi5AUSimulator.js" />
+    <Content Include="Scripts\cmi5AUSimulator.min.js">
+      <DependentUpon>cmi5AUSimulator.js</DependentUpon>
+    </Content>
     <Content Include="Scripts\jquery-1.9.1.js" />
     <Content Include="Scripts\jquery-1.9.1.min.js" />
     <Content Include="Scripts\jquery-1.9.1.min.map" />

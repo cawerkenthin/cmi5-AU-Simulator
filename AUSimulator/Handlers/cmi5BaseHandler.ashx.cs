@@ -50,10 +50,11 @@ namespace AUSimulator.Handlers
         protected void SetCommonParms(NameValueCollection queryString)
         {
             endPoint = queryString["endpoint"];
-            activity = cmi5Object(queryString["activityId"]);
+            activity = ( queryString["activityId"] != null ? cmi5Object(queryString["activityId"]) : new Activity());
             actorJSON = queryString["actor"];
             authToken = "Basic " + Utilities.Base64Encoder(queryString["token"] + ":CMI5");
-            registration = new Guid(queryString["registration"]);
+            if (queryString["registration"] != null)
+                registration = new Guid(queryString["registration"]);
 
             var actorObject = JObject.Parse(actorJSON);
             actor = new Agent(actorObject);

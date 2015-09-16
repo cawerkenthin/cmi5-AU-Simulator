@@ -32,6 +32,23 @@
     });
 });
 
+function GetAgentProfile() {
+    var conf = {
+        "endpoint": endPoint,
+        "auth": "Basic " + window.btoa(jq("#txtAuthToken").val() + ":CMI5")
+    }
+    ADL.XAPIWrapper.changeConfig(conf);
+
+    var r = ADL.XAPIWrapper.getAgentProfile(jq.parseJSON(actor), "CMI5LearnerPreferences", null);
+
+    jq("#txtProfile").val(JSON.stringify(r));
+
+    MarkSuccess("btnProfile");
+    MarkNext("btnStatement");
+
+    return false;
+}
+
 function GetAuthToken() {
     jq.support.cors = true;
     jq.ajax({
@@ -98,7 +115,7 @@ function GetStateApi() {
         jq("#txtState").val(JSON.stringify(obj, null, 4));
 
         MarkSuccess("btnState");
-        MarkNext("btnStatement");
+        MarkNext("btnProfile");
 
     }).fail(function (jqXHR, textStatus, errorThrown) {
         alert(errorThrown);

@@ -17,7 +17,11 @@
                         <asp:TextBox ID="txtState" ClientIDMode="Static" CssClass="form-control" placeholder="State API Document" style="max-width: 500px;" runat="server" TabIndex="0" ReadOnly="true" TextMode="MultiLine" Rows="5" />
                         <button id="btnState" class="btn btn-default btn-block" style="max-width: 300px;" onclick="return GetStateApi();">Fetch State API Document</button>
                         <hr/>
-                         <div class="row">
+                        <label for="txtProfile"><asp:Literal runat="server" Text="State API Document" /></label>
+                        <asp:TextBox ID="txtProfile" ClientIDMode="Static" CssClass="form-control" placeholder="Agent Profile Document" style="max-width: 500px;" runat="server" TabIndex="0" ReadOnly="true" TextMode="MultiLine" Rows="2" />
+                        <button id="btnProfile" class="btn btn-default btn-block" style="max-width: 300px;" onclick="return GetAgentProfile();">Fetch Agent Profile Document</button>                        
+                        <hr/>
+                        <div class="row">
                             <div class="col-sm-2">
                                 <div class="panel panel-info" style="max-width: 140px;">
                                     <div class="panel-heading">
@@ -109,7 +113,8 @@
             masteryScore,
             returnUrl;
 
-        var jq;        
+        var jq;
 </script>
+<script type="text/javascript" src="Scripts/xapiwrapper.min.js"></script>
 <script type="text/javascript" src="Scripts/cmi5AUSimulator.min.js"></script>
 </asp:Content>
