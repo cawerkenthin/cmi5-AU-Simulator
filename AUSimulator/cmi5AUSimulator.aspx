@@ -115,6 +115,7 @@
 
         var jq;
 </script>
+<script type="text/javascript" src="Scripts/number-polyfill.min.js" ></script>
 <script type="text/javascript" src="Scripts/xapiwrapper.min.js"></script>
 <script type="text/javascript" src="Scripts/cmi5AUSimulator.min.js"></script>
 </asp:Content>
