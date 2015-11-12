@@ -56,6 +56,7 @@ namespace AUSimulator.Handlers
 
             var statement = new Statement
             {
+                id = Guid.NewGuid(),
                 actor = actor,
                 verb = verb,
                 target = activity,
