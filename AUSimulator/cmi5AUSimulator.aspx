@@ -17,7 +17,7 @@
                         <asp:TextBox ID="txtState" ClientIDMode="Static" CssClass="form-control" placeholder="State API Document" style="max-width: 500px;" runat="server" TabIndex="0" ReadOnly="true" TextMode="MultiLine" Rows="5" />
                         <button id="btnState" class="btn btn-default btn-block" style="max-width: 300px;" onclick="return GetStateApi();">Fetch State API Document</button>
                         <hr/>
-                        <label for="txtProfile"><asp:Literal runat="server" Text="State API Document" /></label>
+                        <label for="txtProfile"><asp:Literal runat="server" Text="Agent Profile" /></label>
                         <asp:TextBox ID="txtProfile" ClientIDMode="Static" CssClass="form-control" placeholder="Agent Profile Document" style="max-width: 500px;" runat="server" TabIndex="0" ReadOnly="true" TextMode="MultiLine" Rows="2" />
                         <button id="btnProfile" class="btn btn-default btn-block" style="max-width: 300px;" onclick="return GetAgentProfile();">Fetch Agent Profile Document</button>                        
                         <hr/>
