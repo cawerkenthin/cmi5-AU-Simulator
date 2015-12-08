@@ -76,7 +76,7 @@ function GetAuthToken() {
         alert(errorThrown);
     });
     return false;
-}
+} 
 
 function GetStateApi() {
     jq.support.cors = true;

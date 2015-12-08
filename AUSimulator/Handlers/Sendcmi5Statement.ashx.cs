@@ -110,10 +110,28 @@ namespace AUSimulator.Handlers
 
             // Send the statement
             var lrs = GetLRS();
-            var lrsResponse = lrs.SaveStatement(statement);
+
+            var sendSuccess = false;
+
+            var msg = "";
+            for (var try_ = 1; try_ < 3; try_++)
+            {
+                
+                var lrsResponse = lrs.SaveStatement(statement);
+
+                if (lrsResponse.success)
+                {
+                    msg = "";
+                    sendSuccess = true;
+                    break;
+                }
+
+                msg = lrsResponse.errMsg;
+                System.Threading.Thread.Sleep(500);
+            }
 
             var oSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            if (lrsResponse.success && string.IsNullOrWhiteSpace(lrsResponse.errMsg))
+            if (sendSuccess && string.IsNullOrWhiteSpace(msg))
             {
                 //ct.Response.Write("Saved " + lrsResponse.content.id);
                 ct.Response.Write(oSerializer.Serialize(
@@ -129,7 +147,7 @@ namespace AUSimulator.Handlers
                     new returnObj
                     {
                         HasError = 1,
-                        ErrorMessage = lrsResponse.errMsg
+                        ErrorMessage = msg
                     }));
         }
 
