@@ -39,7 +39,7 @@ function GetAgentProfile() {
     }
     ADL.XAPIWrapper.changeConfig(conf);
 
-    var r = ADL.XAPIWrapper.getAgentProfile(jq.parseJSON(actor), "CMI5LearnerPreferences", null);
+    var r = ADL.XAPIWrapper.getAgentProfile(jq.parseJSON(actor), "cmi5LearnerPreferences", null);
 
     jq("#txtProfile").val(JSON.stringify(r));
 
