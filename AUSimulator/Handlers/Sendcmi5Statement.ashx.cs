@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web;
+using AUSimulator.Classes;
 using Newtonsoft.Json.Linq;
 using TinCan;
 using Extensions = TinCan.Extensions;
@@ -22,6 +23,7 @@ namespace AUSimulator.Handlers
             var durationParts = ct.Request.QueryString["duration"].Split(':');
             var complete = ct.Request.QueryString["complete"];
             var progress = ct.Request.QueryString["progress"];
+            var masteryScore = ct.Request.QueryString["masteryScore"];
 
             var verb = Getcmi5Verb(verbName);
 
@@ -50,9 +52,15 @@ namespace AUSimulator.Handlers
             }
 
             // All "cmi5 defined" statements must include the sessionId
-            context.extensions = new Extensions(JObject.Parse(
-                    "{\"http://purl.org/xapi/cmi5/context/extensions/sessionid\": \"" + sessionId + "\"}"
-            ));
+            var extensions = '"' + "http://purl.org/xapi/cmi5/context/extensions/sessionid\": \"" + sessionId + '"';
+                             
+            if (verbName.ToUpperInvariant() == "PASSED" || verbName.ToUpperInvariant() == "FAILED")
+            {
+                // Passed and Failed statements require the masteryScore as an extension
+                extensions += ",\"http://purl.org/xapi/cmi5/context/extensions/masteryScore\": " + masteryScore;
+            }
+
+            context.extensions = new Extensions(JObject.Parse("{" + extensions + "}"));
 
             var statement = new Statement
             {
@@ -163,33 +171,32 @@ namespace AUSimulator.Handlers
             switch (verbName.ToUpperInvariant())
             {
                 case "INITIALIZED":
-                    verb.id = new Uri("http://adlnet.gov/expapi/verbs/initialized");
+                    verb.id = new Uri(cmi5Verb.Initialized);
                     verb.display.Add("en-US", "Initialized");
                     break;
 
                 case "COMPLETED":
-                    verb.id = new Uri("http://adlnet.gov/expapi/verbs/completed");
+                    verb.id = new Uri(cmi5Verb.Completed);
                     verb.display.Add("en-US", "Completed");
                     break;
 
                 case "PASSED":
-                    verb.id = new Uri("http://adlnet.gov/expapi/verbs/passed");
+                    verb.id = new Uri(cmi5Verb.Passed);
                     verb.display.Add("en-US", "Passed");
                     break;
 
                 case "FAILED":
-                    verb.id = new Uri("http://adlnet.gov/expapi/verbs/failed");
+                    verb.id = new Uri(cmi5Verb.Failed);
                     verb.display.Add("en-US", "Failed");
                     break;
 
                 case "TERMINATED":
-                    verb.id = new Uri("http://adlnet.gov/expapi/verbs/terminated");
+                    verb.id = new Uri(cmi5Verb.Terminated);
                     verb.display.Add("en-US", "Terminated");
                     break;
             }
 
             return verb;
         }
-       
     }
 }

@@ -159,6 +159,7 @@ function SendStatement() {
              "&token=" + jq("#txtAuthToken").val() +
              "&sessionId=" + sessionId +
              "&score=" + score +
+             "&masteryScore=" + masteryScore +
              "&verb=" + verb +
              "&success=" + success +
              "&complete=" + complete +
