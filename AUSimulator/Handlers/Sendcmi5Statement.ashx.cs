@@ -33,31 +33,30 @@ namespace AUSimulator.Handlers
                 contextActivities = new ContextActivities()
             };
 
-            // All "cmi5 defined" statements MUST have a category with an "id" 
-            // of "http://purl.org/xapi/cmi5/context/categories/cmi5". 
+            // All "cmi5 defined" statements MUST have a specific category 
             context.contextActivities.category = new List<Activity>
             {
                 cmi5ContextActivity()
             };
 
             // Statements with a results object that include either "success” or "completion” properties 
-            // MUST have a category with an "id" of "http://purl.org/xapi/cmi5/context/categories/moveon". 
+            // MUST have a category with an "id" of cmi5Constants.MoveOn. 
             // Other statements MUST NOT include the this property.
             if (!string.IsNullOrWhiteSpace(success) || !string.IsNullOrWhiteSpace(complete))
             {
                 context.contextActivities.category.Add(new Activity
                 {
-                    id = new Uri("http://purl.org/xapi/cmi5/context/categories/moveon")
+                    id = new Uri(cmi5Constants.moveOn)
                 });
             }
 
             // All "cmi5 defined" statements must include the sessionId
-            var extensions = '"' + "http://purl.org/xapi/cmi5/context/extensions/sessionid\": \"" + sessionId + '"';
+            var extensions = '"' + cmi5Constants.SessionIdIRI + "\": \"" + sessionId + '"';
                              
             if (verbName.ToUpperInvariant() == "PASSED" || verbName.ToUpperInvariant() == "FAILED")
             {
                 // Passed and Failed statements require the masteryScore as an extension
-                extensions += ",\"http://purl.org/xapi/cmi5/context/extensions/masteryScore\": " + masteryScore;
+                extensions += ",\"" + cmi5Constants.masteryScore + "\": " + masteryScore;
             }
 
             context.extensions = new Extensions(JObject.Parse("{" + extensions + "}"));
@@ -109,7 +108,7 @@ namespace AUSimulator.Handlers
                 if (!string.IsNullOrWhiteSpace(progress))
                 {
                     result.extensions = new Extensions(JObject.Parse(
-                        "{\"http://purl.org/xapi/cmi5/result/extensions/progress\": \"" + progress + "\"}"
+                        "{" + cmi5Constants.Progress + "\": \"" + progress + "\"}"
                     ));   
                 }
 
