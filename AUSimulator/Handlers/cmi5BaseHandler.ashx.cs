@@ -29,7 +29,7 @@ namespace AUSimulator.Handlers
         {
             return new Activity
             {
-                id = new Uri("http://purl.org/xapi/cmi5/context/categories/cmi5")
+                id = new Uri(cmi5Constants.cmi5Category)
             };
         }
 
