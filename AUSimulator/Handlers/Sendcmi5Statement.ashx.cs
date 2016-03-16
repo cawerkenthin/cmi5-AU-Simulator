@@ -123,7 +123,6 @@ namespace AUSimulator.Handlers
             var msg = "";
             for (var try_ = 1; try_ < 3; try_++)
             {
-                
                 var lrsResponse = lrs.SaveStatement(statement);
 
                 if (lrsResponse.success)
@@ -133,7 +132,7 @@ namespace AUSimulator.Handlers
                     break;
                 }
 
-                msg = lrsResponse.errMsg;
+                msg = lrsResponse.errMsg + Environment.NewLine + lrsResponse.httpException.Message;
                 System.Threading.Thread.Sleep(500);
             }
 

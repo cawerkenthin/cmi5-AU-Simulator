@@ -99,7 +99,7 @@ function GetStateApi() {
 
         // Set the sessionId var
         var obj = JSON.parse(data["StateDocument"]);
-        sessionId = obj.contextTemplate.extensions["http://purl.org/xapi/cmi5/context/extensions/sessionid"];
+        sessionId = obj.contextTemplate.extensions["https://w3id.org/xapi/cmi5/context/extensions/sessionid"];
 
         // Get returnUrl
         var r = typeof (obj["returnURL"]);
