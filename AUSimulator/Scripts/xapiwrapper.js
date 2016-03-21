@@ -200,7 +200,7 @@ function isDate(date) {
     };
 
     // This wrapper is based on the Experience API Spec version:
-    XAPIWrapper.prototype.xapiVersion = "1.0.0";
+    XAPIWrapper.prototype.xapiVersion = "1.0.1";
 
     /*
      * Adds info from the lrs object to the statement, if available.
@@ -1327,7 +1327,8 @@ function isDate(date) {
         }
         
         //If it's not cross domain or we're not using IE, use the usual XmlHttpRequest
-        if (!xDomainRequest || typeof(XDomainRequest) === 'undefined') {
+        var windowsVersionCheck = window.XDomainRequest && (window.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
+        if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
             xhr = new XMLHttpRequest();
             xhr.open(method, url, callback != null);
             for(var headerName in headers){

@@ -4,6 +4,7 @@ using System.Web;
 using AUSimulator.Classes;
 using Newtonsoft.Json.Linq;
 using TinCan;
+using TinCan.Json;
 using Extensions = TinCan.Extensions;
 
 namespace AUSimulator.Handlers
@@ -24,6 +25,15 @@ namespace AUSimulator.Handlers
             var complete = ct.Request.QueryString["complete"];
             var progress = ct.Request.QueryString["progress"];
             var masteryScore = ct.Request.QueryString["masteryScore"];
+            var auName = Convert.ToString(ct.Request.QueryString["auName"]);
+
+            if (!string.IsNullOrWhiteSpace(auName))
+            {
+                activity.definition = new ActivityDefinition
+                {
+                    name = new LanguageMap(new StringOfJSON(auName))
+                };
+            }
 
             var verb = Getcmi5Verb(verbName);
 
@@ -170,27 +180,42 @@ namespace AUSimulator.Handlers
             {
                 case "INITIALIZED":
                     verb.id = new Uri(cmi5Verb.Initialized);
-                    verb.display.Add("en-US", "Initialized");
+                    verb.display.Add("de-DE", "initialisierte");
+                    verb.display.Add("en-US", "initialized");
+                    verb.display.Add("fr-FR", "a initialisé");
+                    verb.display.Add("es-ES", "inicializó");
                     break;
 
                 case "COMPLETED":
                     verb.id = new Uri(cmi5Verb.Completed);
-                    verb.display.Add("en-US", "Completed");
+                    verb.display.Add("de-DE", "beendete");
+                    verb.display.Add("en-US", "completed");
+                    verb.display.Add("fr-FR", "a terminé");
+                    verb.display.Add("es-ES", "completó");
                     break;
 
                 case "PASSED":
                     verb.id = new Uri(cmi5Verb.Passed);
-                    verb.display.Add("en-US", "Passed");
+                    verb.display.Add("de-DE", "bestand");
+                    verb.display.Add("en-US", "passed");
+                    verb.display.Add("fr-FR", "a réussi");
+                    verb.display.Add("es-ES", "aprobó");
                     break;
 
                 case "FAILED":
                     verb.id = new Uri(cmi5Verb.Failed);
-                    verb.display.Add("en-US", "Failed");
+                    verb.display.Add("de-DE", "verfehlte");
+                    verb.display.Add("en-US", "failed");
+                    verb.display.Add("fr-FR", "a échoué");
+                    verb.display.Add("es-ES", "fracasó");
                     break;
 
                 case "TERMINATED":
                     verb.id = new Uri(cmi5Verb.Terminated);
-                    verb.display.Add("en-US", "Terminated");
+                    verb.display.Add("de-DE", "beendete");
+                    verb.display.Add("en-US", "terminated");
+                    verb.display.Add("fr-FR", "a terminé");
+                    verb.display.Add("es-ES", "terminó");
                     break;
             }
 

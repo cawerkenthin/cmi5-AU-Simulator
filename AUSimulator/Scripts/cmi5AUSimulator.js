@@ -1,4 +1,5 @@
 ﻿$(function () {
+    // Fetch command line parameters
     endPoint = parse("endpoint");
     fetchUrl = parse("fetch");
     registration = parse("registration");
@@ -69,6 +70,7 @@ function GetAuthToken() {
             jq("#txtAuthToken").val(data["auth-token"]);
             MarkSuccess("btnAuthToken");
             MarkNext("btnState");
+            GetAUName();
         } else {
             alert("Invalid structure returned: " + data.toString());
         }
@@ -76,7 +78,55 @@ function GetAuthToken() {
         alert(errorThrown);
     });
     return false;
-} 
+}
+
+function GetAUName() {
+    // This function tries to read the name of the AU (object.definition.name) by reading the previous 
+    // "launch" statement, which is written by the LMS.  If the AuthToken does not have authority to read
+    // statements sent by the LMS (i.e. the LMS is not using the AuthToken), then this will not work.
+    //
+    jq.support.cors = true;
+
+    var conf = {
+        "endpoint": endPoint,
+        "auth": "Basic " + window.btoa(jq("#txtAuthToken").val() + ":CMI5")
+    }
+    ADL.XAPIWrapper.changeConfig(conf);
+
+    // Find last launched statement for this activityId
+    var search = ADL.XAPIWrapper.searchParams();
+    search["verb"] = "http://adlnet.gov/expapi/verbs/launched";
+    search["activity"] = activityId;
+    search["registration"] = registration;
+    search["limit"] = "1";
+
+    ADL.XAPIWrapper.getStatements(search, null, function (r) {
+        var response = $.parseJSON(r.response);
+        var stmt;
+        var stmts;
+        var length;
+        if (response.hasOwnProperty('statements')) {
+            stmts = response.statements;
+            length = stmts.length;
+        } else {
+            stmt = response;
+            length = 1;
+        }
+
+        if (length > 0) {
+            if (stmt) {
+                stmts = $.parseJSON("[" + JSON.stringify(stmt) + "]");
+            } else {
+                stmts = $.parseJSON(JSON.stringify(stmts));
+            }
+
+            jq("#AUTitle").html("- " + stmts[0].object.definition.name["en-US"]);
+            auName = stmts[0].object.definition.name;
+        }        
+    });
+
+    return false;
+}
 
 function GetStateApi() {
     jq.support.cors = true;
@@ -164,7 +214,8 @@ function SendStatement() {
              "&success=" + success +
              "&complete=" + complete +
              "&duration=" + duration +
-             "&progress=" + progress,
+             "&progress=" + progress +
+             "&auName=" + JSON.stringify(auName),
         type: "POST",
         contentType: "application/json; charset=utf-8",
         dataType: "json"
@@ -185,6 +236,7 @@ function SendStatement() {
     });
     return false;
 }
+
 
 function parse(val) {
     // Parse parameters

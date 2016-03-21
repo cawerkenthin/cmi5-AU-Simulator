@@ -4,7 +4,7 @@
        <div class="container">
         <div class="panel panel-primary">
             <div class="panel-heading">
-                <h3 class="panel-title">cmi5 AU Simulator</h3>
+                <h3 class="panel-title">cmi5 AU Simulator&nbsp;<span id="AUTitle"></span></h3>
             </div>
             <div class="panel-body">
                <form class="form-sim" runat="server">
@@ -111,7 +111,8 @@
             actor,
             sessionId,
             masteryScore,
-            returnUrl;
+            returnUrl,
+            auName;
 
         var jq;
 </script>
