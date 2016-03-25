@@ -148,8 +148,11 @@ function GetStateApi() {
         }
 
         // Set the sessionId var
+        debugger;
         var obj = JSON.parse(data["StateDocument"]);
         sessionId = obj.contextTemplate.extensions["https://w3id.org/xapi/cmi5/context/extensions/sessionid"];
+        publisherId = obj.contextTemplate.extensions["https://w3id.org/xapi/cmi5/context/extensions/publisherid"];
+
 
         // Get returnUrl
         var r = typeof (obj["returnURL"]);
@@ -214,6 +217,7 @@ function SendStatement() {
              "&success=" + success +
              "&complete=" + complete +
              "&duration=" + duration +
+             "&publisherId=" + publisherId +
              "&progress=" + progress +
              "&auName=" + JSON.stringify(auName),
         type: "POST",
@@ -236,7 +240,6 @@ function SendStatement() {
     });
     return false;
 }
-
 
 function parse(val) {
     // Parse parameters

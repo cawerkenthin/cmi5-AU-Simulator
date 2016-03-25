@@ -104,15 +104,16 @@
     </div> <!-- /container -->
     
     <script type="text/javascript">
-        var endPoint,
-            fetchUrl,
-            registration,
-            activityId,
+        var activityId,
             actor,
-            sessionId,
+            auName,
+            endPoint,
+            fetchUrl,
             masteryScore,
+            publisherId,
+            registration,
             returnUrl,
-            auName;
+            sessionId;
 
         var jq;
 </script>

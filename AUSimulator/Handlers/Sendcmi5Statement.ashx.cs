@@ -17,15 +17,17 @@ namespace AUSimulator.Handlers
 
             SetCommonParms(ct.Request.QueryString);
 
+            var auName = Convert.ToString(ct.Request.QueryString["auName"]);
+            var complete = ct.Request.QueryString["complete"];
+            var durationParts = ct.Request.QueryString["duration"].Split(':');
+            var masteryScore = ct.Request.QueryString["masteryScore"];
             var sessionId = ct.Request.QueryString["sessionId"];
             var score = ct.Request.QueryString["score"];
-            var verbName = ct.Request.QueryString["verb"];
             var success = ct.Request.QueryString["success"];
-            var durationParts = ct.Request.QueryString["duration"].Split(':');
-            var complete = ct.Request.QueryString["complete"];
             var progress = ct.Request.QueryString["progress"];
-            var masteryScore = ct.Request.QueryString["masteryScore"];
-            var auName = Convert.ToString(ct.Request.QueryString["auName"]);
+            var publisherId = ct.Request.QueryString["publisherId"];
+            var verbName = ct.Request.QueryString["verb"];
+
 
             if (!string.IsNullOrWhiteSpace(auName))
             {
@@ -61,7 +63,8 @@ namespace AUSimulator.Handlers
             }
 
             // All "cmi5 defined" statements must include the sessionId
-            var extensions = '"' + cmi5Constants.SessionIdIRI + "\": \"" + sessionId + '"';
+            var extensions = '"' + cmi5Constants.SessionIdIRI + "\": \"" + sessionId + "\"," +
+                             '"' + cmi5Constants.PublisherId + "\": \"" + publisherId + '"';
                              
             if (verbName.ToUpperInvariant() == "PASSED" || verbName.ToUpperInvariant() == "FAILED")
             {

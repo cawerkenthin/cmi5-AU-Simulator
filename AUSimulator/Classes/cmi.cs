@@ -16,6 +16,7 @@
     public struct cmi5Constants
     {
         public const string SessionIdIRI = "https://w3id.org/xapi/cmi5/context/extensions/sessionid";
+        public const string PublisherId = "https://w3id.org/xapi/cmi5/context/extensions/publisherid";
         public const string cmi5Category = "https://w3id.org/xapi/cmi5/context/categories/cmi5";
         public const string Progress = "https://w3id.org/xapi/cmi5/result/extensions/progress";
         public const string masteryScore = "https://w3id.org/xapi/cmi5/context/extensions/masteryScore";
