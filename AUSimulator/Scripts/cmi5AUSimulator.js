@@ -27,6 +27,7 @@ jq(function () {
             jq("input:radio[name='rdoComplete'][value='false']").prop("checked", true);
         }
         if (verb == "Terminated") {
+            jq("input:radio[name='rdoComplete'][value='false']").prop("checked", true);
             jq("#durationMinutes").val("1");
         }
     });
