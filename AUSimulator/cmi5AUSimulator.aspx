@@ -110,12 +110,10 @@
             endPoint,
             fetchUrl,
             masteryScore,
-            publisherId,
+            contextActivities,
             registration,
             returnUrl,
             sessionId;
-
-        var jq;
 </script>
 <script type="text/javascript" src="Scripts/number-polyfill.min.js" ></script>
 <script type="text/javascript" src="Scripts/xapiwrapper.min.js"></script>

@@ -25,9 +25,8 @@ namespace AUSimulator.Handlers
             var score = ct.Request.QueryString["score"];
             var success = ct.Request.QueryString["success"];
             var progress = ct.Request.QueryString["progress"];
-            var publisherId = ct.Request.QueryString["publisherId"];
             var verbName = ct.Request.QueryString["verb"];
-
+            var contextActivities = ct.Request.QueryString["contextActivities"];
 
             if (!string.IsNullOrWhiteSpace(auName))
             {
@@ -42,14 +41,12 @@ namespace AUSimulator.Handlers
             var context = new Context
             {
                 registration = registration,
-                contextActivities = new ContextActivities()
+                contextActivities = new ContextActivities(JObject.Parse(contextActivities))  // contextActivities from State API
             };
 
             // All "cmi5 defined" statements MUST have a specific category 
-            context.contextActivities.category = new List<Activity>
-            {
-                cmi5ContextActivity()
-            };
+            if (context.contextActivities.category == null) context.contextActivities.category = new List<Activity>();
+            context.contextActivities.category.Add(cmi5ContextActivity());
 
             // Statements with a results object that include either "success” or "completion” properties 
             // MUST have a category with an "id" of cmi5Constants.MoveOn. 
@@ -63,8 +60,7 @@ namespace AUSimulator.Handlers
             }
 
             // All "cmi5 defined" statements must include the sessionId
-            var extensions = '"' + cmi5Constants.SessionIdIRI + "\": \"" + sessionId + "\"," +
-                             '"' + cmi5Constants.PublisherId + "\": \"" + publisherId + '"';
+            var extensions = '"' + cmi5Constants.SessionIdIRI + "\": \"" + sessionId + '"';
                              
             if (verbName.ToUpperInvariant() == "PASSED" || verbName.ToUpperInvariant() == "FAILED")
             {

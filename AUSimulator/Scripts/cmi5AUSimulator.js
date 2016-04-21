@@ -1,12 +1,11 @@
-﻿$(function () {
+﻿var jq = $;
+jq(function () {
     // Fetch command line parameters
     endPoint = parse("endpoint");
     fetchUrl = parse("fetch");
     registration = parse("registration");
     activityId = parse("activityid");
     actor = parse("actor");
-
-    jq = $;
 
     jq("input:radio[name='rdoVerb']").change(function () {
         // Default success and completion based on judgement verbs
@@ -148,11 +147,10 @@ function GetStateApi() {
         }
 
         // Set the sessionId var
-        debugger;
         var obj = JSON.parse(data["StateDocument"]);
-        sessionId = obj.contextTemplate.extensions["https://w3id.org/xapi/cmi5/context/extensions/sessionid"];
-        publisherId = obj.contextTemplate.extensions["https://w3id.org/xapi/cmi5/context/extensions/publisherid"];
 
+        sessionId = obj.contextTemplate.extensions["https://w3id.org/xapi/cmi5/context/extensions/sessionid"];
+        contextActivities = obj.contextTemplate.contextActivities;
 
         // Get returnUrl
         var r = typeof (obj["returnURL"]);
@@ -217,7 +215,7 @@ function SendStatement() {
              "&success=" + success +
              "&complete=" + complete +
              "&duration=" + duration +
-             "&publisherId=" + publisherId +
+             "&contextActivities=" + JSON.stringify(contextActivities) +
              "&progress=" + progress +
              "&auName=" + JSON.stringify(auName),
         type: "POST",
