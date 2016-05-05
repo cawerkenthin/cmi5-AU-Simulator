@@ -71,6 +71,7 @@
     <Content Include="App_Themes\AUSim\AUSim.css" />
     <Content Include="App_Themes\AUSim\images\RISCLogo.gif" />
     <Content Include="cmi5AUSimulator.aspx" />
+    <Content Include="cmi5AUSimulator.html" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
