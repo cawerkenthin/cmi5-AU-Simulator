@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Web;
 
 namespace AUSimulator.Handlers
@@ -31,14 +32,15 @@ namespace AUSimulator.Handlers
                 ct.Response.Write(oSerializer.Serialize(err));
             }
 
-            var chars = new char[lrsResult.content.content.Length / sizeof(char)];
-            Buffer.BlockCopy(lrsResult.content.content, 0, chars, 0, lrsResult.content.content.Length);
+            //var chars = new char[lrsResult.content.content.Length / sizeof(char)];
+            //Buffer.BlockCopy(lrsResult.content.content, 0, chars, 0, lrsResult.content.content.Length);
+            var state = Encoding.UTF8.GetString(lrsResult.content.content);
 
             var stateResp = new cmi5StateDoc
             {
                 ErrorCode = "0",
                 ErrorText = "",
-                StateDocument = (chars.Length > 0 ? new string(chars) : "")
+                StateDocument = state
             };
 
             ct.Response.Write(oSerializer.Serialize(stateResp));

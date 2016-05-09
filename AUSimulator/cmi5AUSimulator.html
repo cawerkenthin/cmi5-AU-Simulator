@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title></title>
+    <title>cmi5 AU Simulator (javascript)</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -10,13 +10,357 @@
         <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" type="text/javascript"></script>
-    <link href='<%# Page.ResolveClientUrl("../Content/bootstrap.min.css") %>' rel="stylesheet" type="text/css" />
-    <link href='<%# Page.ResolveClientUrl("../Content/bootstrap-theme.min.css") %>' rel="stylesheet" type="text/css" />
-    <link href='<%# Page.ResolveClientUrl("../Content/number-polyfill.min.css") %>' rel="stylesheet" type="text/css" />
-    <asp:ContentPlaceHolder ID="cntHead" runat="server" />
-</head>
+    <link href="Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="Content/bootstrap-theme.min.css" rel="stylesheet" type="text/css" />
+    <link href="Content/number-polyfill.min.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
+    <div class="container" style="margin-top: 10px;">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">cmi5 AU Simulator&nbsp;<span id="AUTitle"></span></h3>
+            </div>
+            <div class="panel-body">
+                <form class="form-sim" >
+                    <div style="align-self: center; position: relative;">
+                        <label for="txtAuthToken">auth-token</label>
+                        <input type="text" id="txtAuthToken" class="form-control" placeholder="auth-token" style="max-width: 300px;" tabindex="1" readonly="readonly" />
+                        <button id="btnAuthToken" class="btn btn-primary btn-block" type="button" style="max-width: 300px;" onclick="return GetAuthToken();">Fetch auth-token</button>
+                        <hr />
+                        <label for="txtState">State API Document</label>
+                        <textarea id="txtState" class="form-control" placeholder="State API Document" style="max-width: 500px;" tabindex="0" readonly="readonly" rows="5"></textarea>
+                        <button id="btnState" class="btn btn-default btn-block" style="max-width: 300px;" onclick="return GetStateDocument();">Fetch State API Document</button>
+                        <hr />
+                        <label for="txtProfile">Agent Profile</label>
+                        <textarea id="txtProfile" class="form-control" placeholder="Agent Profile Document" style="max-width: 500px;" tabindex="0" readonly="readonly" rows="2"></textarea>
+                        <button id="btnProfile" class="btn btn-default btn-block" style="max-width: 300px;" onclick="return GetAgentProfile();">Fetch Agent Profile Document</button>
+                        <hr />
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <div class="panel panel-info" style="max-width: 140px;">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">Verb</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <input type="radio" name="rdoVerb" value="Initialized" checked="checked" />&nbsp;Initialized<br />
+                                        <input type="radio" name="rdoVerb" value="Completed" />&nbsp;Completed<br />
+                                        <input type="radio" name="rdoVerb" value="Passed" />&nbsp;Passed<br />
+                                        <input type="radio" name="rdoVerb" value="Failed" />&nbsp;Failed<br />
+                                        <input type="radio" name="rdoVerb" value="Terminated" />&nbsp;Terminated<br />
+                                    </div>
+                                </div>
+                                <div class="panel panel-info" style="max-width: 140px;">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">Verbs Sent</h3>
+                                    </div>
+                                    <div class="panel-body" style="max-height: 160px; overflow-y: scroll;">
+                                        <span id="spnVerbsSent"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-5">
+                                <div class="panel panel-info" style="max-width: 400px;">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">Result</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <table class="table">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Score (Scaled)</td>
+                                                    <td>
+                                                        <input type="number" id="txtScore" min="0.0" max="1.0" step=".05" style="width:80px" />&nbsp;
+                                                        <span id="spnMasteryScore"></span><br />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Success</td>
+                                                    <td>
+                                                        <input type="radio" name="rdoSuccess" value="true" />&nbsp;True<br />
+                                                        <input type="radio" name="rdoSuccess" value="false" />&nbsp;False<br />
+                                                        <input type="radio" name="rdoSuccess" value="" checked="checked" />&nbsp;Don't Send
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Complete</td>
+                                                    <td>
+                                                        <input type="radio" name="rdoComplete" value="true" />&nbsp;True<br />
+                                                        <input type="radio" name="rdoComplete" value="false" />&nbsp;False<br />
+                                                        <input type="radio" name="rdoComplete" value="" checked="checked" />&nbsp;Don't Send
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Duration</td>
+                                                    <td>
+                                                        <input type="number" id="durationHours" min="0" step="1" placeholder="Hours" style="width: 50px;" /> :
+                                                        <input type="number" id="durationMinutes" min="0" step="1" placeholder="Min" style="width: 50px;" /> :
+                                                        <input type="number" id="durationSeconds" min="0" step="1" placeholder="Sec" style="width: 50px;" />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Progress</td>
+                                                    <td><input type="number" id="input_progress" min="0" step="1" style="width: 50px;" /></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="btnStatement" class="btn btn-default btn-block"
+                                style="max-width: 300px;" onclick="return SendStatement();">
+                            Send Statement
+                        </button><br /><hr />
+                        <button id="btnLMS" class="btn btn-default btn-block"
+                                onclick="return GoLMS();" style="max-width: 300px;">
+                            Return to LMS
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div>
+            <a href="http://risc-inc.com" target="_blank">
+                <img id="img2" src="App_Themes/AUSim/images/RISCLogo.gif" alt="RISC Logo"/>
+            </a>
+        </div>
+    </div> <!-- /container -->
+
+    <script type="text/javascript">
+        var activityId,
+            actor,
+            auName,
+            endPoint,
+            fetchUrl,
+            masteryScore,
+            contextActivities,
+            registration,
+            returnUrl,
+            sessionId;
+    </script>
+    <script type="text/javascript" src="Scripts/xapiwrapper.js"></script>
+<script type="text/javascript">
+    var jq = $;
+    var endPointConfig;
+    jq(function () {
+        // Fetch command line parameters
+        endPoint = parse("endpoint");
+        fetchUrl = parse("fetch");
+        registration = parse("registration");
+        activityId = parse("activityid");
+        actor = parse("actor");
+
+        jq("input:radio[name='rdoVerb']").change(function () {
+            // Default success and completion based on judgement verbs
+            var verb = jq(this).val();
+            if (verb == "Initialized") {
+                jq("input:radio[name='rdoComplete'][value='']").prop("checked", true);
+                jq("input:radio[name='rdoSuccess'][value='']").prop("checked", true);
+            }
+            if (verb == "Completed") {
+                jq("input:radio[name='rdoComplete'][value='true']").prop("checked", true);
+                jq("input:radio[name='rdoSuccess'][value='']").prop("checked", true);
+            }
+            if (verb == "Passed") {
+                jq("input:radio[name='rdoComplete'][value='']").prop("checked", true);
+                jq("input:radio[name='rdoSuccess'][value='true']").prop("checked", true);
+            }
+            if (verb == "Failed") {
+                jq("input:radio[name='rdoSuccess'][value='false']").prop("checked", true);
+                jq("input:radio[name='rdoComplete'][value='false']").prop("checked", true);
+            }
+            if (verb == "Terminated") {
+                jq("input:radio[name='rdoComplete'][value='false']").prop("checked", true);
+                jq("#durationMinutes").val("1");
+            }
+        });
+    });
+
+    function GetAgentProfile() {
+        cmi5Controller.getAgentProfile(endPointConfig, actor, setAgentProfile);
+        return false;
+    }
+
+    function GetAuthToken() {
+        cmi5Controller.getAuthToken(setAuthToken);
+        return false;
+    }
+
+    function GetStateDocument() {
+        cmi5Controller.getStateDocument(endPointConfig, activityId, actor, registration, setStateDocument);
+        return false;
+    }
+
+    function setAuthToken(authToken) {
+        if (authToken) {
+            jq("#txtAuthToken").val(authToken);
+            MarkSuccess("btnAuthToken");
+            MarkNext("btnState");
+            endPointConfig = {
+                "endpoint": endPoint,
+                "auth": "Basic " + window.btoa(authToken + ":CMI5")
+            };
+
+            GetAUName();
+        }
+    }
+
+    function setAgentProfile(r) {
+        var obj = JSON.parse(r.response);
+        jq("#txtProfile").val(JSON.stringify(obj, null, 3));
+
+        MarkSuccess("btnProfile");
+        MarkNext("btnStatement");
+    }
+
+    function setStateDocument(r) {
+        var obj = JSON.parse(r.response);
+
+        // Display state
+        jq("#txtState").val(JSON.stringify(obj, null, 3));
+
+        // Get session id
+        sessionId = obj.contextTemplate.extensions["https://w3id.org/xapi/cmi5/context/extensions/sessionid"];
+
+        // Get context activities
+        contextActivities = obj.contextTemplate.contextActivities;
+
+        // Get returnUrl
+        var t = typeof (obj["returnURL"]);
+        if (t == "string") {
+            returnUrl = obj["returnURL"];
+        }
+
+        // Display mastery score
+        masteryScore = obj["masteryScore"];
+        jq("#spnMasteryScore").html("Mastery = " + masteryScore.toString());
+
+        MarkSuccess("btnState");
+        MarkNext("btnProfile");
+    }
+
+    function GetAUName() {
+        // This function tries to read the name of the AU (object.definition.name) by reading the previous 
+        // "launch" statement, which is written by the LMS.  If the AuthToken does not have authority to read
+        // statements sent by the LMS (i.e. the LMS is not using the AuthToken), then this will not work.
+        //
+        jq.support.cors = true;
+
+        ADL.XAPIWrapper.changeConfig(endPointConfig);
+
+        // Find last launched statement for this activityId
+        var search = ADL.XAPIWrapper.searchParams();
+        search["verb"] = "http://adlnet.gov/expapi/verbs/launched";
+        search["activity"] = activityId;
+        search["registration"] = registration;
+        search["limit"] = "1";
+
+        ADL.XAPIWrapper.getStatements(search, null, function (r) {
+            var response = $.parseJSON(r.response);
+            var stmt;
+            var stmts;
+            var length;
+            if (response.hasOwnProperty('statements')) {
+                stmts = response.statements;
+                length = stmts.length;
+            } else {
+                stmt = response;
+                length = 1;
+            }
+
+            if (length > 0) {
+                if (stmt) {
+                    stmts = $.parseJSON("[" + JSON.stringify(stmt) + "]");
+                } else {
+                    stmts = $.parseJSON(JSON.stringify(stmts));
+                }
+
+                jq("#AUTitle").html("- " + stmts[0].object.definition.name["en-US"]);
+                auName = stmts[0].object.definition.name;
+            }
+        });
+
+        return false;
+    }
+
+    function MarkNext(buttonId) {
+        jq("#" + buttonId).removeClass("btn-success btn-default").addClass("btn-primary");
+    }
+
+    function MarkSuccess(buttonId) {
+        jq("#" + buttonId).removeClass("btn-primary btn-default").addClass("btn-success");
+    }
+
+    function parse(val) {
+        // Parse parameters
+        var result = "Not found",
+            tmp = [];
+        val = val.toUpperCase();
+        location.search
+            .substr(1)
+            .split("&")
+            .forEach(function (item) {
+                tmp = item.split("=");
+                if (tmp[0].toUpperCase() === val) result = decodeURIComponent(tmp[1]);
+            });
+        return result;
+    }
+
+    var cmi5Controller = (function () {
+
+        var jq = $;         // Local copy of jquery ($)
+
+        // **********************
+        // Public functions
+        // **********************
+        return {
+
+            // getAuthToken calls the fetch url to get the authorization token
+            getAuthToken: function (successCallBack) {
+                var auth = "";
+                jq.support.cors = true;
+                jq.ajax({
+                        async: false,
+                        url: fetchUrl,
+                        type: "POST",
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8"
+                    })
+                    .done(function(data) {
+                        // Check for error
+                        var e = typeof (data["error-code"]);
+                        if (e == "string") {
+                            alert("error-code " + data["error-code"] + ": " + data["error-text"]);
+                            auth = "";
+                        }
+                        e = typeof (data["auth-token"]);
+                        if (e == "string") {
+                            successCallBack(data["auth-token"]);
+                           
+                        } else {
+                            alert("Invalid structure returned: " + data.toString());
+                            auth = "";
+                        }
+
+                    })
+                    .fail(function(jqXHR, textStatus, errorThrown) {
+                        alert(errorThrown);
+                    });
+                return auth;
+            },
+            getAgentProfile: function (endPointConfig, agent, callback) {
+                ADL.XAPIWrapper.changeConfig(endPointConfig);
+
+                ADL.XAPIWrapper.getAgentProfile(jq.parseJSON(agent), "cmi5LearnerPreferences", null, callback);
+                return false;
+            },
+            getStateDocument: function (endPointConfig, activityId, agent, registration, callback) {
+                ADL.XAPIWrapper.changeConfig(endPointConfig);
+                ADL.XAPIWrapper.getState(activityId, jq.parseJSON(agent), "LMS.LaunchData", registration, null, callback);
+            }
+        };
+    })();
+</script>
 
 </body>
 </html>
