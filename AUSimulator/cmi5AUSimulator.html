@@ -126,241 +126,28 @@
         </div>
     </div> <!-- /container -->
 
-    <script type="text/javascript">
-        var activityId,
-            actor,
-            auName,
-            endPoint,
-            fetchUrl,
-            masteryScore,
-            contextActivities,
-            registration,
-            returnUrl,
-            sessionId;
-    </script>
-    <script type="text/javascript" src="Scripts/xapiwrapper.js"></script>
 <script type="text/javascript">
+    var activityId,
+        actor,
+        auName,
+        activityProperties,
+        endPoint,
+        fetchUrl,
+        masteryScore,
+        contextActivities,
+        contextExtensions,
+        registration,
+        returnUrl,
+        lastVerb;
+
     var jq = $;
     var endPointConfig;
-    jq(function () {
-        // Fetch command line parameters
-        endPoint = parse("endpoint");
-        fetchUrl = parse("fetch");
-        registration = parse("registration");
-        activityId = parse("activityid");
-        actor = parse("actor");
-
-        jq("input:radio[name='rdoVerb']").change(function () {
-            // Default success and completion based on judgement verbs
-            var verb = jq(this).val();
-            if (verb == "Initialized") {
-                jq("input:radio[name='rdoComplete'][value='']").prop("checked", true);
-                jq("input:radio[name='rdoSuccess'][value='']").prop("checked", true);
-            }
-            if (verb == "Completed") {
-                jq("input:radio[name='rdoComplete'][value='true']").prop("checked", true);
-                jq("input:radio[name='rdoSuccess'][value='']").prop("checked", true);
-            }
-            if (verb == "Passed") {
-                jq("input:radio[name='rdoComplete'][value='']").prop("checked", true);
-                jq("input:radio[name='rdoSuccess'][value='true']").prop("checked", true);
-            }
-            if (verb == "Failed") {
-                jq("input:radio[name='rdoSuccess'][value='false']").prop("checked", true);
-                jq("input:radio[name='rdoComplete'][value='false']").prop("checked", true);
-            }
-            if (verb == "Terminated") {
-                jq("input:radio[name='rdoComplete'][value='false']").prop("checked", true);
-                jq("#durationMinutes").val("1");
-            }
-        });
-    });
-
-    function GetAgentProfile() {
-        cmi5Controller.getAgentProfile(endPointConfig, actor, setAgentProfile);
-        return false;
-    }
-
-    function GetAuthToken() {
-        cmi5Controller.getAuthToken(setAuthToken);
-        return false;
-    }
-
-    function GetStateDocument() {
-        cmi5Controller.getStateDocument(endPointConfig, activityId, actor, registration, setStateDocument);
-        return false;
-    }
-
-    function setAuthToken(authToken) {
-        if (authToken) {
-            jq("#txtAuthToken").val(authToken);
-            MarkSuccess("btnAuthToken");
-            MarkNext("btnState");
-            endPointConfig = {
-                "endpoint": endPoint,
-                "auth": "Basic " + window.btoa(authToken + ":CMI5")
-            };
-
-            GetAUName();
-        }
-    }
-
-    function setAgentProfile(r) {
-        var obj = JSON.parse(r.response);
-        jq("#txtProfile").val(JSON.stringify(obj, null, 3));
-
-        MarkSuccess("btnProfile");
-        MarkNext("btnStatement");
-    }
-
-    function setStateDocument(r) {
-        var obj = JSON.parse(r.response);
-
-        // Display state
-        jq("#txtState").val(JSON.stringify(obj, null, 3));
-
-        // Get session id
-        sessionId = obj.contextTemplate.extensions["https://w3id.org/xapi/cmi5/context/extensions/sessionid"];
-
-        // Get context activities
-        contextActivities = obj.contextTemplate.contextActivities;
-
-        // Get returnUrl
-        var t = typeof (obj["returnURL"]);
-        if (t == "string") {
-            returnUrl = obj["returnURL"];
-        }
-
-        // Display mastery score
-        masteryScore = obj["masteryScore"];
-        jq("#spnMasteryScore").html("Mastery = " + masteryScore.toString());
-
-        MarkSuccess("btnState");
-        MarkNext("btnProfile");
-    }
-
-    function GetAUName() {
-        // This function tries to read the name of the AU (object.definition.name) by reading the previous 
-        // "launch" statement, which is written by the LMS.  If the AuthToken does not have authority to read
-        // statements sent by the LMS (i.e. the LMS is not using the AuthToken), then this will not work.
-        //
-        jq.support.cors = true;
-
-        ADL.XAPIWrapper.changeConfig(endPointConfig);
-
-        // Find last launched statement for this activityId
-        var search = ADL.XAPIWrapper.searchParams();
-        search["verb"] = "http://adlnet.gov/expapi/verbs/launched";
-        search["activity"] = activityId;
-        search["registration"] = registration;
-        search["limit"] = "1";
-
-        ADL.XAPIWrapper.getStatements(search, null, function (r) {
-            var response = $.parseJSON(r.response);
-            var stmt;
-            var stmts;
-            var length;
-            if (response.hasOwnProperty('statements')) {
-                stmts = response.statements;
-                length = stmts.length;
-            } else {
-                stmt = response;
-                length = 1;
-            }
-
-            if (length > 0) {
-                if (stmt) {
-                    stmts = $.parseJSON("[" + JSON.stringify(stmt) + "]");
-                } else {
-                    stmts = $.parseJSON(JSON.stringify(stmts));
-                }
-
-                jq("#AUTitle").html("- " + stmts[0].object.definition.name["en-US"]);
-                auName = stmts[0].object.definition.name;
-            }
-        });
-
-        return false;
-    }
-
-    function MarkNext(buttonId) {
-        jq("#" + buttonId).removeClass("btn-success btn-default").addClass("btn-primary");
-    }
-
-    function MarkSuccess(buttonId) {
-        jq("#" + buttonId).removeClass("btn-primary btn-default").addClass("btn-success");
-    }
-
-    function parse(val) {
-        // Parse parameters
-        var result = "Not found",
-            tmp = [];
-        val = val.toUpperCase();
-        location.search
-            .substr(1)
-            .split("&")
-            .forEach(function (item) {
-                tmp = item.split("=");
-                if (tmp[0].toUpperCase() === val) result = decodeURIComponent(tmp[1]);
-            });
-        return result;
-    }
-
-    var cmi5Controller = (function () {
-
-        var jq = $;         // Local copy of jquery ($)
-
-        // **********************
-        // Public functions
-        // **********************
-        return {
-
-            // getAuthToken calls the fetch url to get the authorization token
-            getAuthToken: function (successCallBack) {
-                var auth = "";
-                jq.support.cors = true;
-                jq.ajax({
-                        async: false,
-                        url: fetchUrl,
-                        type: "POST",
-                        dataType: "json",
-                        contentType: "application/json; charset=utf-8"
-                    })
-                    .done(function(data) {
-                        // Check for error
-                        var e = typeof (data["error-code"]);
-                        if (e == "string") {
-                            alert("error-code " + data["error-code"] + ": " + data["error-text"]);
-                            auth = "";
-                        }
-                        e = typeof (data["auth-token"]);
-                        if (e == "string") {
-                            successCallBack(data["auth-token"]);
-                           
-                        } else {
-                            alert("Invalid structure returned: " + data.toString());
-                            auth = "";
-                        }
-
-                    })
-                    .fail(function(jqXHR, textStatus, errorThrown) {
-                        alert(errorThrown);
-                    });
-                return auth;
-            },
-            getAgentProfile: function (endPointConfig, agent, callback) {
-                ADL.XAPIWrapper.changeConfig(endPointConfig);
-
-                ADL.XAPIWrapper.getAgentProfile(jq.parseJSON(agent), "cmi5LearnerPreferences", null, callback);
-                return false;
-            },
-            getStateDocument: function (endPointConfig, activityId, agent, registration, callback) {
-                ADL.XAPIWrapper.changeConfig(endPointConfig);
-                ADL.XAPIWrapper.getState(activityId, jq.parseJSON(agent), "LMS.LaunchData", registration, null, callback);
-            }
-        };
-    })();
 </script>
+<script type="text/javascript" src="Scripts/xapiwrapper.js"></script>
+<script type="text/javascript" src="Scripts/verbs.js"></script>
+<script type="text/javascript" src="Scripts/xapistatement.js"></script>
+<script type="text/javascript" src="Scripts/cmi5AUSimulator_JSVersion.js"></script>
+<script type="text/javascript" src="Scripts/cmi5Controller.js"></script>
 
 </body>
 </html>

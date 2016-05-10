@@ -101,6 +101,8 @@
     <Content Include="Scripts\cmi5AUSimulator.min.js">
       <DependentUpon>cmi5AUSimulator.js</DependentUpon>
     </Content>
+    <Content Include="Scripts\cmi5AUSimulator_JSVersion.js" />
+    <Content Include="Scripts\cmi5Controller.js" />
     <Content Include="Scripts\jquery-1.9.1.js" />
     <Content Include="Scripts\jquery-1.9.1.min.js" />
     <Content Include="Scripts\jquery-1.9.1.min.map" />
@@ -115,6 +117,8 @@
   <ItemGroup>
     <Content Include="Scripts\number-polyfill.js" />
     <Content Include="Scripts\number-polyfill.min.js" />
+    <Content Include="Scripts\verbs.js" />
+    <Content Include="Scripts\xapistatement.js" />
     <Content Include="Scripts\xapiwrapper.js" />
     <Content Include="Scripts\xapiwrapper.min.js" />
     <Content Include="Web.config" />
