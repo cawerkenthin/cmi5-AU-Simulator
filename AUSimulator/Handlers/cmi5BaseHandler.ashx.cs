@@ -20,7 +20,7 @@ namespace AUSimulator.Handlers
         {
             return new Activity
             {
-                id = new Uri(ActivityID)
+                id = ActivityID
             };
         }
 
@@ -28,7 +28,7 @@ namespace AUSimulator.Handlers
         {
             return new Activity
             {
-                id = new Uri(cmi5Constants.cmi5Category)
+                id = cmi5Constants.cmi5Category
             };
         }
 

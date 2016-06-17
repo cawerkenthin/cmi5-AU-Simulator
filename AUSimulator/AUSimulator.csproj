@@ -102,6 +102,9 @@
       <DependentUpon>cmi5AUSimulator.js</DependentUpon>
     </Content>
     <Content Include="Scripts\cmi5AUSimulator_JSVersion.js" />
+    <Content Include="Scripts\cmi5AUSimulator_JSVersion.min.js">
+      <DependentUpon>cmi5AUSimulator_JSVersion.js</DependentUpon>
+    </Content>
     <Content Include="Scripts\cmi5Controller.js" />
     <Content Include="Scripts\jquery-1.9.1.js" />
     <Content Include="Scripts\jquery-1.9.1.min.js" />

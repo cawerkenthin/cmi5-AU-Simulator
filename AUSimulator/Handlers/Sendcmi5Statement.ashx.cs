@@ -55,7 +55,7 @@ namespace AUSimulator.Handlers
             {
                 context.contextActivities.category.Add(new Activity
                 {
-                    id = new Uri(cmi5Constants.moveOn)
+                    id = cmi5Constants.moveOn
                 });
             }
 

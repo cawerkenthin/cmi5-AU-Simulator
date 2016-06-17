@@ -194,7 +194,7 @@ function setAgentProfile(r) {
 function setConfig(endPoint, token) {
     endPointConfig = {
         "endpoint": endPoint,
-        "auth": "Basic " + window.btoa(token + ":CMI5")
+        "auth": "Basic " + token
     };
 }
 

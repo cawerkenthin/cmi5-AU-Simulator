@@ -4,5 +4,11 @@
     "inputFiles": [
       "Scripts/cmi5AUSimulator.js"
     ]
+  },
+  {
+    "outputFileName": "Scripts/cmi5AUSimulator_JSVersion.min.js",
+    "inputFiles": [
+      "Scripts/cmi5AUSimulator_JSVersion.js"
+    ]
   }
 ]
