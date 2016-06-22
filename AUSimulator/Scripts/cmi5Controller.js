@@ -22,26 +22,26 @@
                 dataType: "json",
                 contentType: "application/json; charset=utf-8"
             })
-                .done(function (data) {
-                    // Check for error
-                    var e = typeof (data["error-code"]);
-                    if (e == "string") {
-                        alert("error-code " + data["error-code"] + ": " + data["error-text"]);
-                        callBack("");
-                    }
-                    e = typeof (data["auth-token"]);
-                    if (e == "string") {
-                        callBack(data["auth-token"]);
+            .done(function (data) {
+                // Check for error
+                var e = typeof (data["error-code"]);
+                if (e == "string") {
+                    alert("error-code " + data["error-code"] + ": " + data["error-text"]);
+                    callBack("");
+                }
+                e = typeof (data["auth-token"]);
+                if (e == "string") {
+                    callBack(data["auth-token"]);
 
-                    } else {
-                        alert("Invalid structure returned: " + data.toString());
-                        callBack("");
-                    }
+                } else {
+                    alert("Invalid structure returned: " + data.toString());
+                    callBack("");
+                }
 
-                })
-                .fail(function (jqXHR, textStatus, errorThrown) {
-                    alert(errorThrown);
-                });
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                alert(errorThrown);
+            });
         },
         getAgentProfile: function (endPointConfig, agent, callback) {
             ADL.XAPIWrapper.changeConfig(endPointConfig);
