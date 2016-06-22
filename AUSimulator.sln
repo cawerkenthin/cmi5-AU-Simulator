@@ -4,11 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AUSimulator", "AUSimulator\AUSimulator.csproj", "{E98CAC48-99BF-4EE6-B985-F4FF505B0463}"
-	ProjectSection(ProjectDependencies) = postProject
-		{27D0FCA1-E869-440C-9D16-F62D7A068C53} = {27D0FCA1-E869-440C-9D16-F62D7A068C53}
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinCan", "..\..\TinCan.Net\TinCan\TinCan.csproj", "{27D0FCA1-E869-440C-9D16-F62D7A068C53}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,12 +18,6 @@ Global
 		{E98CAC48-99BF-4EE6-B985-F4FF505B0463}.Documentation|Any CPU.Build.0 = Debug|Any CPU
 		{E98CAC48-99BF-4EE6-B985-F4FF505B0463}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E98CAC48-99BF-4EE6-B985-F4FF505B0463}.Release|Any CPU.Build.0 = Release|Any CPU
-		{27D0FCA1-E869-440C-9D16-F62D7A068C53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{27D0FCA1-E869-440C-9D16-F62D7A068C53}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{27D0FCA1-E869-440C-9D16-F62D7A068C53}.Documentation|Any CPU.ActiveCfg = Documentation|Any CPU
-		{27D0FCA1-E869-440C-9D16-F62D7A068C53}.Documentation|Any CPU.Build.0 = Documentation|Any CPU
-		{27D0FCA1-E869-440C-9D16-F62D7A068C53}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{27D0FCA1-E869-440C-9D16-F62D7A068C53}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -43,7 +43,7 @@ function GetAuthToken() {
 }
 
 function GetStateDocument() {
-    cmi5Controller.getStateDocument(endPointConfig, activityId, actor, registration, setStateDocument);
+    cmi5Controller.getStateDocument(endPointConfig, publisherActivityId, actor, registration, setStateDocument);
     return false;
 }
 
@@ -57,6 +57,7 @@ function GoLMS() {
 }
 
 function SendStatement() {
+    // Read values from form
     var verbName = jq("input:radio[name='rdoVerb']:checked").val();
     var score = jq("#txtScore").val();
     var success = jq("input:radio[name='rdoSuccess']:checked").val();
@@ -78,6 +79,8 @@ function SendStatement() {
     var progress = jq("#input_progress").val();
 
     var agent = JSON.parse(actor);
+
+    // What verb is to be sent?
     var verb;
     switch (verbName) {
         case "Initialized":
@@ -99,6 +102,7 @@ function SendStatement() {
 
     if (verb) {
 
+        // Context extensions were read from the State document's context template
         var cExtentions = contextExtensions;
 
         if (verbName.toUpperCase() == "PASSED" || verbName.toUpperCase() == "FAILED") {
@@ -114,7 +118,7 @@ function SendStatement() {
                                                           contextActivities,
                                                           cExtentions);
 
-        // Add UTC timestamp
+        // Add UTC timestamp.  This is required by cmi5 spec.
         stmt.timestamp = (new Date()).toISOString();
 
         // Do we need a result object?
@@ -147,6 +151,7 @@ function SendStatement() {
             }
         }
 
+        // Keep track of what verb we are sending in case of error and to display on the screen
         lastVerb = verbName;
         cmi5Controller.sendStatement(endPointConfig, stmt, sentStatement);
 
@@ -158,6 +163,7 @@ function SendStatement() {
 }
 
 function sentStatement(resp, obj) {
+    // This is the callback method referenced in call to cmi5Controller.sendStatement()
     if (resp && resp.status == 200) {
         // statement was sent
         if (lastVerb == "Terminated") {
@@ -174,6 +180,7 @@ function sentStatement(resp, obj) {
 }
 
 function setAuthToken(authToken) {
+    // This is the callback method referenced in call to cmi5Controller.getAuthToken()
     if (authToken) {
         setConfig(endPoint, authToken);
         jq("#txtAuthToken").val(authToken);
@@ -184,6 +191,7 @@ function setAuthToken(authToken) {
 }
 
 function setAgentProfile(r) {
+    // This is the callback method referenced in call to cmi5Controller.getAgentProfile()
     var obj = JSON.parse(r.response);
     jq("#txtProfile").val(JSON.stringify(obj, null, 3));
 
@@ -192,6 +200,7 @@ function setAgentProfile(r) {
 }
 
 function setConfig(endPoint, token) {
+    // Set LRS endpoint configuration
     endPointConfig = {
         "endpoint": endPoint,
         "auth": "Basic " + token
@@ -199,6 +208,7 @@ function setConfig(endPoint, token) {
 }
 
 function setStateDocument(r) {
+    // This is the callback method referenced in call to cmi5Controller.getStateDocument()
     var obj = JSON.parse(r.response);
 
     // Display state
@@ -273,15 +283,17 @@ function GetAUProperties() {
 }
 
 function MarkNext(buttonId) {
+    // This is purely UI function.  Changes color of button to highlight the logical "next" buttton.
     jq("#" + buttonId).removeClass("btn-success btn-default").addClass("btn-primary");
 }
 
 function MarkSuccess(buttonId) {
+    // This is purely UI function.  Changes color of button to highlight the clicked to show that it has been completed.
     jq("#" + buttonId).removeClass("btn-primary btn-default").addClass("btn-success");
 }
 
 function parse(val) {
-    // Parse parameters
+    // Utility function to parse command line parameters
     var result = "Not found",
         tmp = [];
     val = val.toUpperCase();

@@ -63,14 +63,9 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
-    <Reference Include="TinCan">
-      <HintPath>..\..\..\TinCan.Net\TinCan\bin\Debug\TinCan.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Themes\AUSim\AUSim.css" />
     <Content Include="App_Themes\AUSim\images\RISCLogo.gif" />
-    <Content Include="cmi5AUSimulator.aspx" />
     <Content Include="cmi5AUSimulator.html" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
@@ -87,20 +82,14 @@
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="Content\bootstrap.css.map" />
-    <Content Include="MasterPages\MobileLearner.Master" />
-    <Content Include="App_Themes\AUSim\AUSim.skin" />
-    <Content Include="Handlers\Getcmi5StateDocument.ashx" />
-    <Content Include="Handlers\Sendcmi5Statement.ashx" />
-    <Content Include="Handlers\cmi5BaseHandler.ashx" />
     <None Include="bundleconfig.json" />
     <None Include="Properties\PublishProfiles\LocalIIS.pubxml" />
+    <Content Include="Scripts\cmi5AUSimulator_JSVersion.min.js.map">
+      <DependentUpon>cmi5AUSimulator_JSVersion.min.js</DependentUpon>
+    </Content>
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
-    <Content Include="Scripts\cmi5AUSimulator.js" />
-    <Content Include="Scripts\cmi5AUSimulator.min.js">
-      <DependentUpon>cmi5AUSimulator.js</DependentUpon>
-    </Content>
     <Content Include="Scripts\cmi5AUSimulator_JSVersion.js" />
     <Content Include="Scripts\cmi5AUSimulator_JSVersion.min.js">
       <DependentUpon>cmi5AUSimulator_JSVersion.js</DependentUpon>
@@ -127,36 +116,9 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\cmi.cs" />
-    <Compile Include="Classes\Page.Base.cs">
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Classes\Utilities.cs" />
-    <Compile Include="cmi5AUSimulator.aspx.cs">
-      <DependentUpon>cmi5AUSimulator.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="cmi5AUSimulator.aspx.designer.cs">
-      <DependentUpon>cmi5AUSimulator.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Handlers\cmi5BaseHandler.ashx.cs">
-      <DependentUpon>cmi5BaseHandler.ashx</DependentUpon>
-    </Compile>
-    <Compile Include="Handlers\Getcmi5StateDocument.ashx.cs">
-      <DependentUpon>Getcmi5StateDocument.ashx</DependentUpon>
-    </Compile>
-    <Compile Include="Handlers\Sendcmi5Statement.ashx.cs">
-      <DependentUpon>Sendcmi5Statement.ashx</DependentUpon>
-    </Compile>
-    <Compile Include="MasterPages\MobileLearner.Master.cs">
-      <DependentUpon>MobileLearner.Master</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="MasterPages\MobileLearner.Master.designer.cs">
-      <DependentUpon>MobileLearner.Master</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
