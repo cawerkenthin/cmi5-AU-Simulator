@@ -43,7 +43,7 @@ function GetAuthToken() {
 }
 
 function GetStateDocument() {
-    cmi5Controller.getStateDocument(endPointConfig, publisherActivityId, actor, registration, setStateDocument);
+    cmi5Controller.getStateDocument(endPointConfig, activityId, actor, registration, setStateDocument);
     return false;
 }
 
