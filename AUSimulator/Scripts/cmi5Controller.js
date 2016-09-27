@@ -19,8 +19,7 @@
                 async: true,
                 url: fetchUrl,
                 type: "POST",
-                dataType: "json",
-                contentType: "application/json; charset=utf-8"
+                dataType: "json"
             })
             .done(function (data) {
                 // Check for error
