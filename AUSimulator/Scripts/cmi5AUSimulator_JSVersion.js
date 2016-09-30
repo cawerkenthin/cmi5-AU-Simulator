@@ -149,6 +149,14 @@ function SendStatement() {
 
                 stmt.result.duration = pt;
             }
+
+            // Statements that include success or complete must include a moveon activity in the context
+            if (success || complete) {
+                stmt.context.contextActivities.category.push(
+                {
+                    "id": "https://w3id.org/xapi/cmi5/context/categories/moveon"
+                });
+            }
         }
 
         // Keep track of what verb we are sending in case of error and to display on the screen
@@ -228,6 +236,7 @@ function setStateDocument(r) {
 
     // Display mastery score
     masteryScore = obj["masteryScore"];
+    debugger;
     jq("#spnMasteryScore").html("Mastery = " + masteryScore.toString());
 
     MarkSuccess("btnState");
