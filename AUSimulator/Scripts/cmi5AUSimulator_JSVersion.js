@@ -236,7 +236,6 @@ function setStateDocument(r) {
 
     // Display mastery score
     masteryScore = obj["masteryScore"];
-    debugger;
     jq("#spnMasteryScore").html("Mastery = " + masteryScore.toString());
 
     MarkSuccess("btnState");
