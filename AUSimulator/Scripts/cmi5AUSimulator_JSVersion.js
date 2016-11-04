@@ -48,8 +48,10 @@ function GetStateDocument() {
 }
 
 function GoLMS() {
+    debugger;
     if ((typeof returnUrl) == "string" && returnUrl.length > 0) {
-        document.location.href = returnUrl;
+       var href = decodeURIComponent(returnUrl);
+       document.location.href = href;
         return false;
     }
     self.close();           // Not allowed in FireFox
