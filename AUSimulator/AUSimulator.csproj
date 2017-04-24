@@ -84,9 +84,6 @@
     <Content Include="Content\bootstrap.css.map" />
     <None Include="bundleconfig.json" />
     <None Include="Properties\PublishProfiles\LocalIIS.pubxml" />
-    <Content Include="Scripts\cmi5AUSimulator_JSVersion.min.js.map">
-      <DependentUpon>cmi5AUSimulator_JSVersion.min.js</DependentUpon>
-    </Content>
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
