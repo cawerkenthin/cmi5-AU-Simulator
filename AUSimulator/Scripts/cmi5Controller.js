@@ -8,12 +8,28 @@
     var Agent_;
 
     // **********************
+    // Private functions
+    // **********************
+    function GetBasicStatement(agent_, verb_, object_) {
+        Agent_ = new ADL.XAPIStatement.Agent(agent_);
+
+        var s = new ADL.XAPIStatement(
+            Agent_,
+            verb_,
+            object_
+        );
+
+        s.generateId();
+        return s;
+    }
+
+    // **********************
     // Public functions
     // **********************
     return {
 
         // getAuthToken calls the fetch url to get the authorization token
-        getAuthToken: function (callBack) {
+        getAuthToken: function (callBack, tokenErrorCallBack) {
             jq.support.cors = true;
             jq.ajax({
                 async: true,
@@ -39,7 +55,7 @@
 
             })
             .fail(function (jqXHR, textStatus, errorThrown) {
-                alert(errorThrown);
+                tokenErrorCallBack(errorThrown);
             });
         },
         getAgentProfile: function (endPointConfig, agent, callback) {
@@ -52,23 +68,35 @@
             ADL.XAPIWrapper.changeConfig(endPointConfig_);
             ADL.XAPIWrapper.getState(activityId_, jq.parseJSON(agent_), "LMS.LaunchData", registration_, null, callback_);
         },
-        getcmi5DefinedStatement: function (agent_, verb_, object_, registration_, contextActivities_, contextExtensions_) {
-            Agent_ = new ADL.XAPIStatement.Agent(agent_);
-
-            stmt_ = new ADL.XAPIStatement(
-                Agent_,
-                verb_,
-                object_
-            );
-
-            stmt_.generateId();
+        getcmi5AllowedStatement: function (agent_, verb_, object_, registration_, contextActivities_, contextExtensions_) {
+            stmt_ = GetBasicStatement(agent_, verb_, object_);
 
             // Add registration
             stmt_.context = {};
             stmt_.context.registration = registration_;
 
             // Context activities from State API
-            stmt_.context.contextActivities = contextActivities_;
+            var z = contextActivities_;
+            if (z.hasOwnProperty("category")) {
+                delete z.category;
+            }
+            stmt_.context.contextActivities = z;
+
+            // Extensions
+            stmt_.context.extensions = contextExtensions_;
+
+            return stmt_;
+        },
+        getcmi5DefinedStatement: function (agent_, verb_, object_, registration_, contextActivities_, contextExtensions_) {
+            stmt_ = GetBasicStatement(agent_, verb_, object_);
+
+            // Add registration
+            stmt_.context = {};
+            stmt_.context.registration = registration_;
+
+            // Context activities from State API
+            var z = contextActivities_;
+            stmt_.context.contextActivities = z;
 
             // cmi5 Context activity
             stmt_.context.contextActivities.category = [];
