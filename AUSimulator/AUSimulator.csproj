@@ -106,6 +106,7 @@
   <ItemGroup>
     <Content Include="Scripts\number-polyfill.js" />
     <Content Include="Scripts\number-polyfill.min.js" />
+    <Content Include="Scripts\RISCcmi5Scripts.js" />
     <Content Include="Scripts\verbs.js" />
     <Content Include="Scripts\xapistatement.js" />
     <Content Include="Scripts\xapiwrapper.js" />
