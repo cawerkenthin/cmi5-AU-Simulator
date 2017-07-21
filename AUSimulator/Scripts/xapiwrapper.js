@@ -25,6 +25,17 @@ if ( !Date.prototype.toISOString ) {
   }() );
 }
 
+// Art Werkenthin, RISC, Inc. 7/21/2017
+// This library is incorrectly setting If-Match and If-None-Match headers when the hash is *.
+// When the hash is *, the header is If-Match: *, not If-Match: "*".  I replaced code that
+// sets the header to call this function.
+function getMatchHash(hash) {
+    if (hash === "*") {
+        return hash;
+    }
+    return '"' + hash + '"';
+}
+
 // shim for old-style Base64 lib
 function toBase64(text){
   if(CryptoJS && CryptoJS.enc.Base64) 
@@ -477,13 +488,12 @@ function isDate(date) {
             {
                 log("Can't have both If-Match and If-None-Match");
             }
-            else if (matchHash)
-            {
-                headers = {"If-Match":'"'+matchHash+'"'};
+            else if (matchHash) {
+                headers = { "If-Match": getMatchHash(matchHash) };
             }
             else if (noneMatchHash)
             {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
+                headers = {"If-None-Match": getMatchHash(noneMatchHash)};
             }
 
             var method = "PUT";
@@ -631,11 +641,11 @@ function isDate(date) {
             }
             else if (matchHash)
             {
-                headers = {"If-Match":'"'+matchHash+'"'};
+                headers = { "If-Match": getMatchHash(matchHash)};
             }
             else if (noneMatchHash)
             {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
+                headers = {"If-None-Match": getMatchHash(noneMatchHash)};
             }
 
             var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, headers);
@@ -688,11 +698,11 @@ function isDate(date) {
             }
             else if (matchHash)
             {
-                headers = {"If-Match":'"'+matchHash+'"'};
+                headers = {"If-Match": getMatchHash(matchHash)};
             }
             else if (noneMatchHash)
             {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
+                headers = {"If-None-Match": getMatchHash(noneMatchHash)};
             }
 
             var method = "PUT";
@@ -813,11 +823,11 @@ function isDate(date) {
             }
             else if (matchHash)
             {
-                headers = {"If-Match":'"'+matchHash+'"'};
+                headers = {"If-Match": getMatchHash(matchHash)};
             }
             else if (noneMatchHash)
             {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
+                headers = {"If-None-Match": getMatchHash(noneMatchHash)};
             }
 
             var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, headers);
@@ -909,11 +919,11 @@ function isDate(date) {
             }
             else if (matchHash)
             {
-                headers = {"If-Match":'"'+matchHash+'"'};
+                headers = {"If-Match": getMatchHash(matchHash)};
             }
             else if (noneMatchHash)
             {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
+                headers = {"If-None-Match": getMatchHash(noneMatchHash)};
             }
 
             var method = "PUT";
@@ -949,7 +959,7 @@ function isDate(date) {
     };
 
     /*
-     * Get agnet profile from the LRS
+     * Get agent profile from the LRS
      * @param {object} agent   the agent associated with this profile
      * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids 
      *              associated with the agent
@@ -1034,11 +1044,12 @@ function isDate(date) {
             }
             else if (matchHash)
             {
-                headers = {"If-Match":'"'+matchHash+'"'};
+                if (matchHash == "*")
+                    headers = {"If-Match": getMatchHash(matchHash)};
             }
             else if (noneMatchHash)
             {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
+                headers = {"If-None-Match":getMatchHash(noneMatchHash)};
             }
 
             var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, headers);

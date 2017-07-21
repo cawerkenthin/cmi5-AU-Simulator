@@ -4,5 +4,11 @@
     "inputFiles": [
       "Scripts/cmi5AUSimulator_JSVersion.js"
     ]
+  },
+  {
+    "outputFileName": "Scripts/xapiwrapper.min.js",
+    "inputFiles": [
+      "Scripts/xapiwrapper.js"
+    ]
   }
 ]
