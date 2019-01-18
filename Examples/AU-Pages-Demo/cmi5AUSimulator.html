@@ -1,0 +1,540 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>cmi5 AU Simulator (javascript)</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script type="text/javascript" src="Scripts/RISCcmi5Scripts.js"></script>
+    <script type="text/javascript">
+        var activityId,
+            actor,
+            auName,
+            activityProperties,
+            endPoint,
+            fetchUrl,
+            masteryScore,
+            contextActivities,
+            contextExtensions,
+            registration,
+            returnUrl,
+            launchParameters,
+            lastVerb;
+        var isInitialized;
+
+        var jq = $;
+        var endPointConfig;
+
+        function cmi5PageReady() {
+            var module = launchParameters.split(",")[0];
+            // Send initialized statement
+            if (module === "1") {
+                jq("#dvPage1").show();
+            } else if (module === "2") {
+                GetAU1Choice();
+
+                jq("#dvPage2").show();
+            } else {
+                jq("#txtFile").on("change", function () {
+                    var file = jq("#txtFile").get(0).files[0];
+                    var fn = file && file.name;
+                    if (fn) {
+                        ToggleImportButton(false);
+                    } else {
+                        ToggleImportButton(true);
+                    }
+                });
+                ToggleImportButton(true);
+                jq("#dvPage3").show();
+            }
+
+            if (isInitialized) return;
+            SendStatement();
+            isInitialized = true;
+        }
+
+        function format(d) {
+            // `d` is the original data object for the row
+            return '<div><pre class="prettyprint lang-js">' +
+                JSON.stringify(d, null, 2) +
+                '</pre></div>';
+        }
+
+        function GetAU1Choice() {
+            jq.support.cors = true;
+
+            var __EndPointConfig = {
+                "endpoint": endPoint,
+                "auth": "Basic " + btoa("YOURLRSID:YOURLRSPASSWORD")
+            };
+
+            ADL.XAPIWrapper.changeConfig(__EndPointConfig);
+
+            // Find last launched statement for this activityId
+            var search = ADL.XAPIWrapper.searchParams();
+            search["verb"] = ADL.verbs.preferred.id;
+            search["registration"] = registration;
+            search["limit"] = "1";
+
+            ADL.XAPIWrapper.getStatements(search, null, function (r) {
+                var response = $.parseJSON(r.response);
+                var stmt;
+                var stmts;
+                var length;
+                if (response.hasOwnProperty('statements')) {
+                    stmts = response.statements;
+                    length = stmts.length;
+                } else {
+                    stmt = response;
+                    length = 1;
+                }
+
+                if (length > 0) {
+                    if (stmt) {
+                        stmts = $.parseJSON("[" + JSON.stringify(stmt) + "]");
+                    } else {
+                        stmts = $.parseJSON(JSON.stringify(stmts));
+                    }
+
+                    var myChoice = stmts[0].result.response;
+                    switch(myChoice) {
+                        case "Aventador":
+                            jq("#imgChoice").attr("src", "images/aventador.jpg");
+                            break;
+                        case "Gallardo":
+                            jq("#imgChoice").attr("src", "images/gallardo.jpg");
+                            break;
+                        case "Huracan":
+                            jq("#imgChoice").attr("src", "images/huracan.jpg");
+                            break;
+                    }
+
+                    SendTerminated();
+                } 
+            });
+        }
+
+        function SendChoice() {
+            
+            var myStatement = cmi5Controller.getcmi5AllowedStatement(JSON.parse(actor),
+                ADL.verbs.preferred,
+                activityProperties,
+                registration,
+                contextActivities,
+                contextExtensions);
+
+            myStatement.result = { "response": jq("#cmbModel").val() }
+            myStatement.object.id = myStatement.object.id + "/cmbModel";
+            cmi5Controller.sendStatement(endPointConfig, myStatement, IsSent);
+        }
+
+        function IsSent() {
+            jq("#spnDone").show();
+            SendTerminated();
+        }
+
+        function IsSent3() {
+            jq("#spnDone3").show();
+            SendTerminated();
+        }
+
+        function SendAttachment() {
+            ToggleImportButton(true);
+            var file = jq("#txtFile").get(0).files[0];
+            var fn = file && file.name;
+            if (!fn) {
+                return;
+            }
+
+            var ext = (file.name.substr(file.name.lastIndexOf(".") + 1)).toLowerCase();
+            if (ext !== "jpg" && ext !== "jpeg" && ext !== "gif" && ext !== "png") {
+                alert("Invalid file type selected.");
+                return;
+            }
+
+            var data = new FormData();
+            data.append("file1", file);
+            data.append("site", launchParameters.split(",")[1]);
+
+            var myStatement = cmi5Controller.getcmi5AllowedStatement(JSON.parse(actor),
+                ADL.verbs.imported,
+                activityProperties,
+                registration,
+                contextActivities,
+                contextExtensions);
+
+            jq.ajax({
+                type: "POST",
+                url: "https://www2.virtualtrainingassistant.com/demo/learnerconnection/api/xAPIAttachment/",
+                contentType: false,
+                processData: false,
+                data: data
+            }).done(function (messages) {
+                var url = messages[0];
+
+                myStatement.attachments =
+                [{
+                    "usageType": "http://id.tincanapi.com/attachment/supporting_media",
+                    "display": { "en-US": "Student Lamborghini photo" },
+                    "description": { "en-US": "Photo submitted by the student" },
+                    "contentType": "image/jpeg",
+                    "fileUrl": url
+                }];
+
+                ReadImage(file, myStatement);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                alert(jqXHR.responseText);
+            });
+
+            
+
+            /*
+
+            reader.onloadend = function(evt) {
+                if (evt.target.readyState === FileReader.DONE) {
+                    //var wordArray = CryptoJS.lib.WordArray.create(evt.target.result);
+                    var hash = CryptoJS.SHA256(arrayBufferToWordArray(evt.target.result));
+
+                    myStatement.attachments[0].length = evt.target.result.byteLength;
+                    myStatement.attachments[0].sha2 = hash;
+
+                    debugger;
+                    cmi5Controller.sendStatement(endPointConfig, myStatement, IsSent3);
+                }
+            };
+            
+            reader.readAsArrayBuffer(file);
+            */
+        }
+
+        function ReadImage(file, stmt) {
+
+            var lrs = new TinCan.LRS({
+                "endpoint": endPointConfig.endpoint,
+                "auth": endPointConfig.auth,
+                "allowFail": false
+            });
+
+            var reader = new FileReader();
+            
+            var statement = new TinCan.Statement({
+                "actor": stmt.actor,
+                "verb": stmt.verb,
+                "target": stmt.object,
+                "context": stmt.context,
+                "attachments": stmt.attachments
+            });
+
+            reader.onloadend = function(evt) {
+                if (evt.target.readyState === FileReader.DONE) {
+                    statement.attachments[0].setContent(evt.target.result);
+                    lrs.saveStatement(statement,
+                        {
+                            callback: function(err, xhr) {
+                                if (err !== null) {
+                                    if (xhr !== null) {
+                                        console.log("Failed to save statement: " +
+                                            xhr.responseText +
+                                            " (" +
+                                            xhr.status +
+                                            ")");
+                                        return;
+                                    }
+
+                                    console.log("Failed to save statement: " + err);
+                                    return;
+                                }
+
+                                // Now... get it back
+                                lrs.queryStatements(
+                                    {
+                                        "params":
+                                        {
+                                            "attachments": true,
+                                            "verb": statement.verb,
+                                            "agent": statement.actor,
+                                            "limit": 1
+                                        },
+                                        "callback": function(err, sr) {
+                                            if (err !== null) {
+                                                console.log("Failed to query statements: " + err);
+                                                return;
+                                            }
+
+                                            var s = sr.statements[0].attachments[0];
+
+                                            // Display the image
+                                            jq("#imgYourLambo").attr("src", s.fileUrl);
+                                            jq("#dvStatement").html(format(sr.statements[0]));
+
+                                            // This code will get it back as a file to save locally
+                                            /*
+                                            var link = document.createElement("a");
+                                            link.download = "lambo.jpeg";
+                                            link.href = "data:" + s.contentType + ";base64," + s.content;
+                                            link.click();
+                                            */
+                                        }
+                                    }
+                                );
+
+                                IsSent3();
+
+                            }
+                        });
+                }
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        function SendTerminated() {
+            // Send terminated statement
+            jq("input:radio[name='rdoVerb']:checked").each(function () {
+                jq(this).prop("checked", false);
+            });
+            jq("#rdoTerminated").prop("checked", true);
+            SendStatement();
+        }
+
+        function ToggleImportButton(state) {
+            jq("#cmdImport").prop("disabled", state);
+        }
+
+        function arrayBufferToWordArray(ab) {
+            var i8a = new Uint8Array(ab);
+            var a = [];
+            for (var i = 0; i < i8a.length; i += 4) {
+                a.push(i8a[i] << 24 | i8a[i + 1] << 16 | i8a[i + 2] << 8 | i8a[i + 3]);
+            }
+            return CryptoJS.lib.WordArray.create(a, i8a.length);
+        }
+    </script>
+</head>
+<body>
+    <div id="dvPage1" class="container" style="display: none;">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h3 class="panel-title">Training Part 1</h3>
+                    </div>
+                    <div class="col-md-8">
+                        <button style="float: right;" type="button" class="btn btn-default" onclick="GoLMS();">Return to Learn4ia</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        Which Lamborghini Model do you like best?
+                    </div>
+                    <div class="col-md-2">
+                        <select id="cmbModel" class="form-control">
+                            <option value="Aventador">Aventador</option>
+                            <option value="Gallardo">Gallardo</option>
+                            <option value="Huracan">Huracan</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-default" onclick="SendChoice();">Submit</button>&nbsp;
+                        <span id="spnDone" style="color: red; display: none;">Done!</span>
+                        
+                    </div>
+                    <div class="col-md-2"><output id="list"></output></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="dvPage2" style="display: none;">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h3 class="panel-title">Training Part 2</h3>
+                    </div>
+                    <div class="col-md-8">
+                        <button style="float: right;" type="button" class="btn btn-default" onclick="GoLMS();">Return to Learn4ia</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h1>In AU 1, you selected:</h1>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <img id="imgChoice" src="" alt="Image of selected model" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="dvPage3" style="display: none;">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h3 class="panel-title">Training Part 3</h3>
+                    </div>
+                    <div class="col-md-8">
+                        <button style="float: right;" type="button" class="btn btn-default" onclick="GoLMS();">Return to Learn4ia</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        Attach your favorite Lamborghini Photo to your training record
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <input class="form-control" id="txtFile" type="file" accept=".jpg,.jpeg,.gif,.png" style="width: 380px;" />&nbsp;
+                        <button id="cmdImport" style="margin-top: 8px;" type="button" class="btn btn-default" onclick="SendAttachment();">Submit</button>
+                        &nbsp;<span id="spnDone3" style="color: red; display: none;">Done!</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <img id="imgYourLambo" src="images/spacer.gif" alt="Your Picture" />
+                    </div>
+                    <div class="col-md-6" id="dvStatement">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container" style="margin-top: 10px; visibility: hidden;">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">cmi5 properties</h3>
+            </div>
+            <div class="panel-body">
+                <form class="form-sim">
+                    <div style="align-self: center; position: relative;">
+                        <label for="txtAuthToken">auth-token</label>
+                        <input type="text" id="txtAuthToken" class="form-control" placeholder="auth-token" tabindex="1" readonly="readonly" />
+                        <button id="btnAuthToken" class="btn btn-primary btn-block" type="button" style="max-width: 300px;" onclick="return GetAuthToken();">Fetch auth-token</button>
+                        <hr />
+                        <label for="txtState">State API Document</label>
+                        <textarea id="txtState" class="form-control" placeholder="State API Document" style="max-width: 500px;" tabindex="0" readonly="readonly" rows="5"></textarea>
+                        <button id="btnState" class="btn btn-default btn-block" style="max-width: 300px;" onclick="return GetStateDocument();">Fetch State API Document</button>
+                        <hr />
+                        <label for="txtProfile">Agent Profile</label>
+                        <textarea id="txtProfile" class="form-control" placeholder="Agent Profile Document" style="max-width: 500px;" tabindex="0" readonly="readonly" rows="2"></textarea>
+                        <button id="btnProfile" class="btn btn-default btn-block" style="max-width: 300px;" onclick="return GetAgentProfile();">Fetch Agent Profile Document</button>
+                        <hr />
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <div class="panel panel-info" style="max-width: 140px;">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">Verb</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <input type="radio" name="rdoVerb" value="Initialized" checked="checked" />&nbsp;Initialized<br />
+                                        <input type="radio" name="rdoVerb" value="Completed" />&nbsp;Completed<br />
+                                        <input type="radio" name="rdoVerb" value="Passed" />&nbsp;Passed<br />
+                                        <input type="radio" name="rdoVerb" value="Failed" />&nbsp;Failed<br />
+                                        <input type="radio" name="rdoVerb" id="rdoTerminated" value="Terminated" />&nbsp;Terminated<br />
+                                    </div>
+                                </div>
+                                <div class="panel panel-info" style="max-width: 140px;">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">Verbs Sent</h3>
+                                    </div>
+                                    <div class="panel-body" style="max-height: 160px; overflow-y: scroll;">
+                                        <span id="spnVerbsSent"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-5">
+                                <div class="panel panel-info" style="max-width: 400px;">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">Result</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <table class="table">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Score (Scaled)</td>
+                                                    <td>
+                                                        <input type="number" id="txtScore" min="0.0" max="1.0" step=".05" style="width: 80px" />&nbsp;
+                                                        <span id="spnMasteryScore"></span><br />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Success</td>
+                                                    <td>
+                                                        <input type="radio" name="rdoSuccess" value="true" />&nbsp;True<br />
+                                                        <input type="radio" name="rdoSuccess" value="false" />&nbsp;False<br />
+                                                        <input type="radio" name="rdoSuccess" value="" checked="checked" />&nbsp;Don't Send
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Complete</td>
+                                                    <td>
+                                                        <input type="radio" name="rdoComplete" value="true" />&nbsp;True<br />
+                                                        <input type="radio" name="rdoComplete" value="false" />&nbsp;False<br />
+                                                        <input type="radio" name="rdoComplete" value="" checked="checked" />&nbsp;Don't Send
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Duration</td>
+                                                    <td>
+                                                        <input type="number" id="durationHours" min="0" step="1" placeholder="Hours" style="width: 50px;" /> :
+                                                        <input type="number" id="durationMinutes" min="0" step="1" placeholder="Min" style="width: 50px;" /> :
+                                                        <input type="number" id="durationSeconds" min="0" step="1" placeholder="Sec" style="width: 50px;" />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Progress</td>
+                                                    <td><input type="number" id="input_progress" min="0" step="1" style="width: 50px;" /></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="btnStatement" class="btn btn-default btn-block"
+                                style="max-width: 300px;" onclick="return SendStatement();">
+                            Send Statement
+                        </button><br /><hr />
+                        <button id="btnLMS" class="btn btn-default btn-block"
+                                onclick="GoLMS();return false;" style="max-width: 300px;">
+                            Return to LMS
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div>
+            <a href="http://risc-inc.com" target="_blank">
+                <img id="img2" src="App_Themes/AUSim/images/RISCLogo.gif" alt="RISC Logo" />
+            </a>
+        </div>
+    </div> <!-- /container -->
+<!--
+<script type="text/javascript" src="Scripts/xapiwrapper.js"></script>
+<script type="text/javascript" src="Scripts/verbs.js"></script>
+<script type="text/javascript" src="Scripts/xapistatement.js"></script>
+<script type="text/javascript" src="Scripts/cmi5Controller.js"></script>
+-->
+    <link href="Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="Content/bootstrap-theme.min.css" rel="stylesheet" type="text/css" />
+    <link href="Content/number-polyfill.min.css" rel="stylesheet" type="text/css"/>
+    <link href="Content/prettify.min.css" rel="stylesheet" type="text/css"/>
+    <script src="//cdn.rawgit.com/CryptoStore/crypto-js/3.1.2/build/rollups/sha256.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/enc-base64.js"></script>
+    <script src="Scripts/tincan-min.js"></script>
+    <script src="Scripts/cmi5AUSimulator_JSVersion.js"></script>
+</body>
+</html>
