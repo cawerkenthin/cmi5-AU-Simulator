@@ -6,6 +6,16 @@
     var jq = $;         // Local copy of jquery ($)
     var stmt_;
     var Agent_;
+     
+    // **********************
+    // Public properties    
+    // **********************
+    this.endPoint = "";
+    this.fetchUrl = "";
+    this.registration = "";
+    this.activityId = "";
+    this.actor = "";
+    this.authToken = "";
 
     // **********************
     // Private functions
@@ -41,7 +51,7 @@
                 // Check for error
                 var e = typeof (data["error-code"]);
                 if (e == "string") {
-                    alert("error-code " + data["error-code"] + ": " + data["error-text"]);
+                    console.log("getAuthToken: error-code " + data["error-code"] + ": " + data["error-text"]);
                     callBack("");
                 }
                 e = typeof (data["auth-token"]);
@@ -49,7 +59,7 @@
                     callBack(data["auth-token"]);
 
                 } else {
-                    alert("Invalid structure returned: " + data.toString());
+                    console.log("getAuthToken: Invalid structure returned: " + data.toString());
                     callBack("");
                 }
 
