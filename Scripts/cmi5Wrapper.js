@@ -5,31 +5,6 @@
     registration = parse("registration");
     activityId = parse("activityid");
     actor = parse("actor");
-
-    jq("input:radio[name='rdoVerb']").change(function () {
-        // Default success and completion based on judgement verbs
-        var verb = jq(this).val();
-        if (verb == "Initialized") {
-            jq("input:radio[name='rdoComplete'][value='']").prop("checked", true);
-            jq("input:radio[name='rdoSuccess'][value='']").prop("checked", true);
-        }
-        if (verb == "Completed") {
-            jq("input:radio[name='rdoComplete'][value='true']").prop("checked", true);
-            jq("input:radio[name='rdoSuccess'][value='']").prop("checked", true);
-        }
-        if (verb == "Passed") {
-            jq("input:radio[name='rdoComplete'][value='']").prop("checked", true);
-            jq("input:radio[name='rdoSuccess'][value='true']").prop("checked", true);
-        }
-        if (verb == "Failed") {
-            jq("input:radio[name='rdoComplete'][value='false']").prop("checked", true);
-            jq("input:radio[name='rdoSuccess'][value='false']").prop("checked", true);
-        }
-        if (verb == "Terminated") {
-            jq("input:radio[name='rdoComplete'][value='']").prop("checked", true);
-            jq("input:radio[name='rdoSuccess'][value='']").prop("checked", true);
-        }
-    });
 });
 
 function GetAgentProfile() {
@@ -58,28 +33,7 @@ function GoLMS() {
     return false;
 }
 
-function SendStatement() {
-    // Read values from form
-    var verbName = jq("input:radio[name='rdoVerb']:checked").val();
-    var score = jq("#txtScore").val();
-    var success = jq("input:radio[name='rdoSuccess']:checked").val();
-    var complete = jq("input:radio[name='rdoComplete']:checked").val();
-    var duration;
-    var dH = jq("#durationHours").val();
-    var dM = jq("#durationMinutes").val();
-    var dS = jq("#durationSeconds").val();
-
-    if (dH || dM || dS) {
-        if (!dH) { dH = "0"; }
-        if (!dM) { dM = "0"; }
-        if (!dS) { dS = "0"; }
-
-        duration = dH +
-             ":" + dM +
-             ":" + dS;
-    }
-    var progress = jq("#input_progress").val();
-
+function SendStatement(verbName, score, duration, progress) {
     var agent = JSON.parse(actor);
 
     // What verb is to be sent?
@@ -144,11 +98,6 @@ function SendStatement() {
             }
 
             if (duration) {
-                var pt = "PT";
-                if (dH > 0) pt += dH + "H";
-                if (dM > 0) pt += dM + "M";
-                if (dS > 0) pt += dS + "S";
-
                 stmt.result.duration = pt;
             }
 
@@ -166,7 +115,7 @@ function SendStatement() {
         cmi5Controller.sendStatement(endPointConfig, stmt, sentStatement);
 
     } else {
-        alert("Invalid verb passed: " + verbName);
+        console.log("Invalid verb passed: " + verbName);
     }
 
     return false;
@@ -176,37 +125,20 @@ function sentStatement(resp, obj) {
     // This is the callback method referenced in call to cmi5Controller.sendStatement()
     if (resp && resp.status == 200) {
         // statement was sent
-        if (lastVerb == "Terminated") {
-            MarkSuccess("btnStatement");
-            MarkNext("btnLMS");
-        }
-
-        jq("#spnVerbsSent").append(lastVerb + "<br/>");
-
-        //alert(obj.id);
-    } else {
-        alert("The server returned " + resp.status);
+        console.log("Statement sent");
     }
 }
 
 function setAuthToken(authToken) {
     // This is the callback method referenced in call to cmi5Controller.getAuthToken()
     if (authToken) {
-        setConfig(endPoint, authToken);
-        jq("#txtAuthToken").val(authToken);
-        GetAUProperties();
-        MarkSuccess("btnAuthToken");
-        MarkNext("btnState");
+        setConfig(endPoint, authToken);       
     }
 }
 
 function setAgentProfile(r) {
     // This is the callback method referenced in call to cmi5Controller.getAgentProfile()
-    var obj = JSON.parse(r.response);
-    jq("#txtProfile").val(JSON.stringify(obj, null, 3));
-
-    MarkSuccess("btnProfile");
-    MarkNext("btnStatement");
+    var obj = JSON.parse(r.response);    
 }
 
 function setConfig(endPoint, token) {
@@ -220,10 +152,7 @@ function setConfig(endPoint, token) {
 function setStateDocument(r) {
     // This is the callback method referenced in call to cmi5Controller.getStateDocument()
     var obj = JSON.parse(r.response);
-
-    // Display state
-    jq("#txtState").val(JSON.stringify(obj, null, 3));
-
+    
     // Get context activities
     contextActivities = obj.contextTemplate.contextActivities;
 
@@ -237,69 +166,7 @@ function setStateDocument(r) {
     }
 
     // Display mastery score
-    masteryScore = obj["masteryScore"];
-    jq("#spnMasteryScore").html("Mastery = " + masteryScore.toString());
-
-    MarkSuccess("btnState");
-    MarkNext("btnProfile");
-}
-
-function GetAUProperties() {
-    // This function tries to read the name of the AU (object.definition.name) by reading the previous 
-    // "launch" statement, which is written by the LMS.  If the AuthToken does not have authority to read
-    // statements sent by the LMS (i.e. the LMS is not using the AuthToken), then this will not work.
-    //
-    // Note: Generally, the AU should know it's own name and activity definition.  Since this is a simulator,
-    // however, we are using this method to find activity properties based on statements made by the LMS.
-    //
-    jq.support.cors = true;
-
-    ADL.XAPIWrapper.changeConfig(endPointConfig);
-
-    // Find last launched statement for this activityId
-    var search = ADL.XAPIWrapper.searchParams();
-    search["verb"] = ADL.verbs.launched.id;
-    search["activity"] = activityId;
-    search["registration"] = registration;
-    search["limit"] = "1";
-
-    ADL.XAPIWrapper.getStatements(search, null, function (r) {
-        var response = $.parseJSON(r.response);
-        var stmt;
-        var stmts;
-        var length;
-        if (response.hasOwnProperty('statements')) {
-            stmts = response.statements;
-            length = stmts.length;
-        } else {
-            stmt = response;
-            length = 1;
-        }
-
-        if (length > 0) {
-            if (stmt) {
-                stmts = $.parseJSON("[" + JSON.stringify(stmt) + "]");
-            } else {
-                stmts = $.parseJSON(JSON.stringify(stmts));
-            }
-
-            jq("#AUTitle").html("- " + stmts[0].object.definition.name["en-US"]);
-            auName = stmts[0].object.definition.name;
-            activityProperties = stmts[0].object;
-        }
-    });
-
-    return false;
-}
-
-function MarkNext(buttonId) {
-    // This is purely UI function.  Changes color of button to highlight the logical "next" buttton.
-    jq("#" + buttonId).removeClass("btn-success btn-default").addClass("btn-primary");
-}
-
-function MarkSuccess(buttonId) {
-    // This is purely UI function.  Changes color of button to highlight the clicked to show that it has been completed.
-    jq("#" + buttonId).removeClass("btn-primary btn-default").addClass("btn-success");
+    masteryScore = obj["masteryScore"];    
 }
 
 function parse(val) {
