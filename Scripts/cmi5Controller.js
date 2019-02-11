@@ -82,7 +82,7 @@
         cmi5Controller.sessionId = contextExtensions["https://w3id.org/xapi/cmi5/context/extensions/sessionid"];
         cmi5Controller.publisherId = contextActivities.grouping[0].id;
         cmi5Controller.launchParameters = obj["launchParameters"];
-        cmi5Controller.entities = obj["entitlementKey"];
+        cmi5Controller.entitlementKey = obj["entitlementKey"];
     }
 
     // **********************
