@@ -12,18 +12,21 @@ function GetAgentProfile() {
     return false;
 }
 
+/* Moved to controller
 function GetAuthToken() {
     cmi5Controller.getAuthToken(setAuthToken);
     return false;
 }
+*/
 
+/* Moved to controller
 function GetStateDocument() {
     cmi5Controller.getStateDocument(endPointConfig, activityId, actor, registration, setStateDocument);
     return false;
 }
+*/
 
-function GoLMS() {
-    debugger;
+function GoLMS() {  
     if ((typeof returnUrl) == "string" && returnUrl.length > 0) {
        var href = decodeURIComponent(returnUrl);
        document.location.href = href;
@@ -129,18 +132,21 @@ function sentStatement(resp, obj) {
     }
 }
 
+/* Moved to controller
 function setAuthToken(authToken) {
     // This is the callback method referenced in call to cmi5Controller.getAuthToken()
     if (authToken) {
         setConfig(endPoint, authToken);       
     }
 }
+*/
 
 function setAgentProfile(r) {
     // This is the callback method referenced in call to cmi5Controller.getAgentProfile()
     var obj = JSON.parse(r.response);    
 }
 
+/* Moved to controller
 function setConfig(endPoint, token) {
     // Set LRS endpoint configuration
     endPointConfig = {
@@ -148,7 +154,9 @@ function setConfig(endPoint, token) {
         "auth": "Basic " + token
     };
 }
+*/
 
+/* Moved to controller
 function setStateDocument(r) {
     // This is the callback method referenced in call to cmi5Controller.getStateDocument()
     var obj = JSON.parse(r.response);
@@ -168,6 +176,7 @@ function setStateDocument(r) {
     // Display mastery score
     masteryScore = obj["masteryScore"];    
 }
+*/
 
 function parse(val) {
     // Utility function to parse command line parameters
