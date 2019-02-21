@@ -10,6 +10,7 @@
     var contextActivities;
     var contextExtensions;
     var contextTemplate;
+    var initializedCallback;
      
     // **********************
     // Public properties    
@@ -21,7 +22,7 @@
     this.actor = "";
     this.authToken = "";
      
-    // State parameters (NEW)
+    // State parameters
     this.sessionId = "";
     this.masteryScore = 0;
     this.launchMode = "";
@@ -31,6 +32,8 @@
     this.launchParameters = "";
     this.returnURL = "";
     this.entitlementKey = { "courseStructure": "", "alternate": "" };
+    this.languagePreference = "";
+    this.audioPreference = "";
 
     // **********************
     // Private functions
@@ -48,6 +51,12 @@
         return s;
     }
      
+    function AuthTokenFetched() {  
+        cmi5Controller.getStateDocument(setStateDocument);
+        cmi5Controller.getAgentProfile(setAgentProfile);
+        initializedCallback();
+    } 
+     
     function SetConfig() {  
         // Set LRS endpoint configuration
         endPointConfig = {
@@ -55,49 +64,67 @@
             "auth": "Basic " + cmi5Controller.authToken
         };
     }
-
-    function setStateDocument(r) { 
-        
-        // This is the callback method referenced in call to cmi5Controller.getStateDocument()
-        var obj = JSON.parse(r.response);
-    
-        // Get context activities
-        contextTemplate = obj.contextTemplate;
-        contextActivities = obj.contextTemplate.contextActivities;
-
-        // Get context extensions
-        contextExtensions = obj.contextTemplate.extensions;
-
-        // Get returnUrl
-        var t = typeof (obj["returnURL"]);
-        if (t === "string") {
-            cmi5Controller.returnURL = obj["returnURL"];
+     
+    function setAgentProfile(r) {                                                              
+        // This is the callback method referenced in call to cmi5Controller.getAgentProfile()  
+        if (r.response) {
+            var obj = JSON.parse(r.response);
+            if (obj.languagePreference) {
+                cmi5Controller.languagePreference = obj.languagePreference;
+            }
+            if (obj.audioPreference) {
+                cmi5Controller.audioPreference = obj.audioPreference;
+            }
+        } else {
+            console.log("No agent profile found");
         }
-
-        // Get other state properties
-        cmi5Controller.moveOn = obj["moveOn"];
-        cmi5Controller.masteryScore = obj["masteryScore"];
-        cmi5Controller.launchMode = obj["launchMode"];
-        cmi5Controller.launchMethod = obj["launchMethod"];
-        cmi5Controller.sessionId = contextExtensions["https://w3id.org/xapi/cmi5/context/extensions/sessionid"];
-        cmi5Controller.publisherId = contextActivities.grouping[0].id;
-        cmi5Controller.launchParameters = obj["launchParameters"];
-        cmi5Controller.entitlementKey = obj["entitlementKey"];
     }
+ 
+    function setStateDocument(r) {
+        if (r.response) {
 
+            // This is the callback method referenced in call to cmi5Controller.getStateDocument()
+            var obj = JSON.parse(r.response);
+
+            // Get context activities
+            contextTemplate = obj.contextTemplate;
+            contextActivities = obj.contextTemplate.contextActivities;
+
+            // Get context extensions
+            contextExtensions = obj.contextTemplate.extensions;
+
+            // Get returnUrl
+            var t = typeof (obj["returnURL"]);
+            if (t === "string") {
+                cmi5Controller.returnURL = obj["returnURL"];
+            }
+
+            // Get other state properties
+            cmi5Controller.moveOn = obj["moveOn"];
+            cmi5Controller.masteryScore = obj["masteryScore"];
+            cmi5Controller.launchMode = obj["launchMode"];
+            cmi5Controller.launchMethod = obj["launchMethod"];
+            cmi5Controller.sessionId = contextExtensions["https://w3id.org/xapi/cmi5/context/extensions/sessionid"];
+            cmi5Controller.publisherId = contextActivities.grouping[0].id;
+            cmi5Controller.launchParameters = obj["launchParameters"];
+            cmi5Controller.entities = obj["entitlementKey"];
+        } else {
+            console.log("No state document found");
+        }
+    }
+     
     // **********************
     // Public functions
     // **********************
     return {
         // cmi5 controller initialization
         startUp: function(callBack, errorCallBack) {                        
-            cmi5Controller.getAuthToken(errorCallBack);
+            initializedCallback = callBack;
             Agent_ = new ADL.XAPIStatement.Agent(cmi5Controller.actor);
-            cmi5Controller.getStateDocument(setStateDocument);
-            // more to come...
+            cmi5Controller.getAuthToken(AuthTokenFetched, errorCallBack);
         },
         // getAuthToken calls the fetch url to get the authorization token
-        getAuthToken: function (tokenErrorCallBack) {
+        getAuthToken: function (successCallback, tokenErrorCallBack) {
             jq.support.cors = true;
             jq.ajax({
                 async: true,
@@ -117,7 +144,10 @@
                 e = typeof (data["auth-token"]);
                 if (e == "string") {
                     cmi5Controller.authToken = data["auth-token"];        
-                    SetConfig(data["auth-token"]);                        
+                    SetConfig(data["auth-token"]);
+                    if (successCallback && typeof successCallback === "function") { 
+                        successCallback();
+                    }
                 } else {
                     console.log("getAuthToken: Invalid structure returned: " + data.toString());
                     if (tokenErrorCallBack && typeof tokenErrorCallBack === "function") {
@@ -129,15 +159,14 @@
                 tokenErrorCallBack(errorThrown);
             });
         },
-        getAgentProfile: function (endPointConfig, agent, callback) {
+        getAgentProfile: function (callback) {        
             ADL.XAPIWrapper.changeConfig(endPointConfig);
-
-            ADL.XAPIWrapper.getAgentProfile(jq.parseJSON(agent), "cmi5LearnerPreferences", null, callback);
+            ADL.XAPIWrapper.getAgentProfile(Agent_, "cmi5LearnerPreferences", null, callback);
             return false;
         },
-        getStateDocument: function (endPointConfig_, activityId_, agent_, registration_, callback_) {
-            ADL.XAPIWrapper.changeConfig(endPointConfig_);
-            ADL.XAPIWrapper.getState(cmi5Controller.activityId, Agent_, "LMS.LaunchData", cmi5Controller.registration, null, callback_);
+        getStateDocument: function (callback) {       
+            ADL.XAPIWrapper.changeConfig(endPointConfig);
+            ADL.XAPIWrapper.getState(cmi5Controller.activityId, Agent_, "LMS.LaunchData", cmi5Controller.registration, null, callback);
         },
         getcmi5AllowedStatement: function (agent_, verb_, object_, registration_, contextActivities_, contextExtensions_) {
             stmt_ = GetBasicStatement(agent_, verb_, object_);
