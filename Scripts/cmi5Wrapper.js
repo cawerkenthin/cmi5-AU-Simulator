@@ -7,10 +7,12 @@
     actor = parse("actor");
 });
 
+/* Moved to controller
 function GetAgentProfile() {
     cmi5Controller.getAgentProfile(endPointConfig, actor, setAgentProfile);
     return false;
 }
+*/
 
 /* Moved to controller
 function GetAuthToken() {
@@ -141,10 +143,12 @@ function setAuthToken(authToken) {
 }
 */
 
+/* Moved to controller
 function setAgentProfile(r) {
     // This is the callback method referenced in call to cmi5Controller.getAgentProfile()
     var obj = JSON.parse(r.response);    
 }
+*/
 
 /* Moved to controller
 function setConfig(endPoint, token) {
