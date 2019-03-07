@@ -123,6 +123,42 @@
             Agent_ = new ADL.XAPIStatement.Agent(cmi5Controller.actor);
             cmi5Controller.getAuthToken(AuthTokenFetched, errorCallBack);
         },
+        setEndpoint: function(endpoint) {               
+            if (endpoint) {
+                cmi5Controller.endPoint = endpoint;
+            } else {
+                console.log("Invalid value passed to setEndpoint()");
+            }
+        },
+        setFetchUrl: function(fetchUrl) {
+            if (fetchUrl) {
+                cmi5Controller.fetchUrl = fetchUrl;
+            } else {
+                console.log("Invalid value passed to setFetchUrl()");
+            }
+        },
+        setRegistration: function(registration) {
+            if (registration) {
+                cmi5Controller.registration = registration;
+            } else {
+                console.log("Invalid value passed to setRegistration()");
+            }
+        },
+        setActivityId: function(activityId) {
+            if (activityId) {
+                cmi5Controller.activityId = activityId;
+            } else {
+                console.log("Invalid value passed to setActivityId()");
+            }
+        },
+        setActor: function(actor) {
+            if (actor) {
+                cmi5Controller.actor = actor;
+                // ToDo: validate actor has an account instead of mbox
+            } else {
+                console.log("Invalid value passed to setActor()");
+            }
+        },   
         // getAuthToken calls the fetch url to get the authorization token
         getAuthToken: function (successCallback, tokenErrorCallBack) {
             jq.support.cors = true;
@@ -168,8 +204,8 @@
             ADL.XAPIWrapper.changeConfig(endPointConfig);
             ADL.XAPIWrapper.getState(cmi5Controller.activityId, Agent_, "LMS.LaunchData", cmi5Controller.registration, null, callback);
         },
-        getcmi5AllowedStatement: function (agent_, verb_, object_, registration_, contextActivities_, contextExtensions_) {
-            stmt_ = GetBasicStatement(agent_, verb_, object_);
+        getcmi5AllowedStatement: function (verb_, object_, registration_, contextActivities_, contextExtensions_) {
+            stmt_ = GetBasicStatement(Agent_, verb_, object_);
 
             // Add registration
             stmt_.context = {};
@@ -187,8 +223,8 @@
 
             return stmt_;
         },
-        getcmi5DefinedStatement: function (agent_, verb_, object_, registration_, contextActivities_, contextExtensions_) {
-            stmt_ = GetBasicStatement(agent_, verb_, object_);
+        getcmi5DefinedStatement: function (verb_, object_, registration_, contextActivities_, contextExtensions_) {
+            stmt_ = GetBasicStatement(Agent_, verb_, object_);
 
             // Add registration
             stmt_.context = {};
@@ -210,7 +246,7 @@
 
             return stmt_;
         },
-        sendStatement: function (endPointConfig_, statement_, callback_) {
+        sendStatement: function (statement_, callback_) {
             ADL.XAPIWrapper.changeConfig(endPointConfig);
             ADL.XAPIWrapper.sendStatement(statement_, callback_);
         }
