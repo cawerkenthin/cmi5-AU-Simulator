@@ -7,27 +7,6 @@
     actor = parse("actor");
 });
 
-/* Moved to controller
-function GetAgentProfile() {
-    cmi5Controller.getAgentProfile(endPointConfig, actor, setAgentProfile);
-    return false;
-}
-*/
-
-/* Moved to controller
-function GetAuthToken() {
-    cmi5Controller.getAuthToken(setAuthToken);
-    return false;
-}
-*/
-
-/* Moved to controller
-function GetStateDocument() {
-    cmi5Controller.getStateDocument(endPointConfig, activityId, actor, registration, setStateDocument);
-    return false;
-}
-*/
-
 function GoLMS() {  
     if ((typeof returnUrl) == "string" && returnUrl.length > 0) {
        var href = decodeURIComponent(returnUrl);
@@ -72,8 +51,7 @@ function SendStatement(verbName, score, duration, progress) {
         }
 
         // Get basic cmi5 defined statement object
-        var stmt = cmi5Controller.getcmi5DefinedStatement(agent,
-                                                          verb,
+        var stmt = cmi5Controller.getcmi5DefinedStatement(verb,
                                                           activityProperties,
                                                           registration,
                                                           contextActivities,
@@ -117,7 +95,7 @@ function SendStatement(verbName, score, duration, progress) {
 
         // Keep track of what verb we are sending in case of error and to display on the screen
         lastVerb = verbName;
-        cmi5Controller.sendStatement(endPointConfig, stmt, sentStatement);
+        cmi5Controller.sendStatement(stmt, sentStatement);
 
     } else {
         console.log("Invalid verb passed: " + verbName);
@@ -133,54 +111,6 @@ function sentStatement(resp, obj) {
         console.log("Statement sent");
     }
 }
-
-/* Moved to controller
-function setAuthToken(authToken) {
-    // This is the callback method referenced in call to cmi5Controller.getAuthToken()
-    if (authToken) {
-        setConfig(endPoint, authToken);       
-    }
-}
-*/
-
-/* Moved to controller
-function setAgentProfile(r) {
-    // This is the callback method referenced in call to cmi5Controller.getAgentProfile()
-    var obj = JSON.parse(r.response);    
-}
-*/
-
-/* Moved to controller
-function setConfig(endPoint, token) {
-    // Set LRS endpoint configuration
-    endPointConfig = {
-        "endpoint": endPoint,
-        "auth": "Basic " + token
-    };
-}
-*/
-
-/* Moved to controller
-function setStateDocument(r) {
-    // This is the callback method referenced in call to cmi5Controller.getStateDocument()
-    var obj = JSON.parse(r.response);
-    
-    // Get context activities
-    contextActivities = obj.contextTemplate.contextActivities;
-
-    // Get context extensions
-    contextExtensions = obj.contextTemplate.extensions;
-
-    // Get returnUrl
-    var t = typeof (obj["returnURL"]);
-    if (t == "string") {
-        returnUrl = obj["returnURL"];
-    }
-
-    // Display mastery score
-    masteryScore = obj["masteryScore"];    
-}
-*/
 
 function parse(val) {
     // Utility function to parse command line parameters
