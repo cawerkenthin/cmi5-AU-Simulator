@@ -123,7 +123,7 @@
             Agent_ = new ADL.XAPIStatement.Agent(cmi5Controller.actor);
             cmi5Controller.getAuthToken(AuthTokenFetched, errorCallBack);
         },
-        setEndpoint: function(endpoint) {               
+        setEndPoint: function(endpoint) {               
             if (endpoint) {
                 cmi5Controller.endPoint = endpoint;
             } else {
