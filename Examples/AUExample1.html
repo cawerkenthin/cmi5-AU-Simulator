@@ -3,12 +3,13 @@
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script type="text/javascript" src="Scripts/cmi5Controller.js"></script>
-    <script type="text/javascript" src="Scripts/verbs.js"></script>
-    <script type="text/javascript" src="Scripts/cryptojs_V3.1.2.js"></script>
-    <script type="text/javascript" src="Scripts/xapistatement.js"></script>
-    <script type="text/javascript" src="Scripts/xapiwrapper.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="Scripts/cmi5Controller.js"></script>
+    <script src="Scripts/verbs.js"></script>
+    <script src="Scripts/cryptojs_V3.1.2.js"></script>
+    <script src="Scripts/xapistatement.js"></script>
+    <script src="Scripts/xapiwrapper.js"></script>
+    <script src="Scripts/cmi5Wrapper.js"></script>
     <script>
         // Get jquery into a local variable to improve performance
         var jq = $;
@@ -31,7 +32,7 @@
 
         function cmi5Ready() {
             // Send the initialized statement
-
+            SendStatement("Initialized");
         }
 
         function startUpError() {
