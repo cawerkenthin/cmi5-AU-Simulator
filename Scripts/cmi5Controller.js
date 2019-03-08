@@ -120,7 +120,7 @@
         // cmi5 controller initialization
         startUp: function(callBack, errorCallBack) {                        
             initializedCallback = callBack;
-            Agent_ = new ADL.XAPIStatement.Agent(cmi5Controller.actor);
+            Agent_ = JSON.parse(cmi5Controller.actor);
             cmi5Controller.getAuthToken(AuthTokenFetched, errorCallBack);
         },
         setEndPoint: function(endpoint) {               
