@@ -1,12 +1,3 @@
-﻿jq(function () {
-    // Fetch command line parameters
-    endPoint = parse("endpoint");
-    fetchUrl = parse("fetch");
-    registration = parse("registration");
-    activityId = parse("activityid");
-    actor = parse("actor");
-});
-
 function GoLMS() {  
     if ((typeof returnUrl) == "string" && returnUrl.length > 0) {
        var href = decodeURIComponent(returnUrl);
@@ -18,8 +9,6 @@ function GoLMS() {
 }
 
 function SendStatement(verbName, score, duration, progress) {
-    var agent = JSON.parse(actor);
-
     // What verb is to be sent?
     var verb;
     switch (verbName) {
@@ -93,8 +82,6 @@ function SendStatement(verbName, score, duration, progress) {
             }
         }
 
-        // Keep track of what verb we are sending in case of error and to display on the screen
-        lastVerb = verbName;
         cmi5Controller.sendStatement(stmt, sentStatement);
 
     } else {
