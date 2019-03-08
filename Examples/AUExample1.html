@@ -27,7 +27,6 @@
             // cmi5Ready......This function is called once the controller has fetched the authorization token, read the State document and the agent Profile.
             // startUpError...This function is called if the startUp() method detects an error.
             cmi5Controller.startUp(cmi5Ready, startUpError);
-
         });
 
         function cmi5Ready() {
@@ -38,21 +37,6 @@
         function startUpError() {
             // This is called if there is an error in the cmi5 controller startUp method.
             alert("An error was detected in the cmi5Controller.startUp() method.  Please check the console log for any errors.");
-        }
-
-        function parse(val) {
-            // Utility function to parse command line parameters
-            var result = "Not found",
-                tmp = [];
-            val = val.toUpperCase();
-            location.search
-                .substr(1)
-                .split("&")
-                .forEach(function (item) {
-                    tmp = item.split("=");
-                    if (tmp[0].toUpperCase() === val) result = decodeURIComponent(tmp[1]);
-                });
-            return result;
         }
     </script>
 
