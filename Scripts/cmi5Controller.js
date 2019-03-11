@@ -21,6 +21,7 @@
     this.activityId = "";
     this.actor = "";
     this.authToken = "";
+    this.object = "";
      
     // State parameters
     this.sessionId = "";
@@ -38,9 +39,7 @@
     // **********************
     // Private functions
     // **********************
-    function GetBasicStatement(agent_, verb_, object_) {
-        Agent_ = new ADL.XAPIStatement.Agent(agent_);
-
+    function GetBasicStatement(verb_, object_) {
         var s = new ADL.XAPIStatement(
             Agent_,
             verb_,
@@ -53,8 +52,6 @@
      
     function AuthTokenFetched() {  
         cmi5Controller.getStateDocument(setStateDocument);
-        cmi5Controller.getAgentProfile(setAgentProfile);
-        initializedCallback();
     } 
      
     function SetConfig() {  
@@ -78,6 +75,7 @@
         } else {
             console.log("No agent profile found");
         }
+        initializedCallback();
     }
  
     function setStateDocument(r) {
@@ -107,7 +105,10 @@
             cmi5Controller.sessionId = contextExtensions["https://w3id.org/xapi/cmi5/context/extensions/sessionid"];
             cmi5Controller.publisherId = contextActivities.grouping[0].id;
             cmi5Controller.launchParameters = obj["launchParameters"];
-            cmi5Controller.entities = obj["entitlementKey"];
+            cmi5Controller.entitlementKey = obj["entitlementKey"];
+            
+            // Now get agent profile
+            cmi5Controller.getAgentProfile(setAgentProfile);
         } else {
             console.log("No state document found");
         }
@@ -122,6 +123,12 @@
             initializedCallback = callBack;
             Agent_ = JSON.parse(cmi5Controller.actor);
             cmi5Controller.getAuthToken(AuthTokenFetched, errorCallBack);
+        },
+        getContextActivities() {
+            return contextActivities;
+        },
+        getContextExtensions() {
+            return contextExtensions;
         },
         setEndPoint: function(endpoint) {               
             if (endpoint) {
@@ -204,12 +211,12 @@
             ADL.XAPIWrapper.changeConfig(endPointConfig);
             ADL.XAPIWrapper.getState(cmi5Controller.activityId, Agent_, "LMS.LaunchData", cmi5Controller.registration, null, callback);
         },
-        getcmi5AllowedStatement: function (verb_, object_, registration_, contextActivities_, contextExtensions_) {
-            stmt_ = GetBasicStatement(Agent_, verb_, object_);
+        getcmi5AllowedStatement: function (verb_, object_, contextActivities_, contextExtensions_) {
+            stmt_ = GetBasicStatement(verb_, object_);
 
             // Add registration
             stmt_.context = {};
-            stmt_.context.registration = registration_;
+            stmt_.context.registration = cmi5Controller.registration;
 
             // Context activities from State API
             var z = contextActivities_;
@@ -223,12 +230,12 @@
 
             return stmt_;
         },
-        getcmi5DefinedStatement: function (verb_, object_, registration_, contextActivities_, contextExtensions_) {
+        getcmi5DefinedStatement: function (verb_, object_, , contextActivities_, contextExtensions_) {
             stmt_ = GetBasicStatement(Agent_, verb_, object_);
 
             // Add registration
             stmt_.context = {};
-            stmt_.context.registration = registration_;
+            stmt_.context.registration = cmi5Controller.registration;
 
             // Context activities from State API
             var z = contextActivities_;
