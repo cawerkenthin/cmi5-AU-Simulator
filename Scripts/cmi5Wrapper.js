@@ -32,18 +32,26 @@ function SendStatement(verbName, score, duration, progress) {
     if (verb) {
 
         // Context extensions were read from the State document's context template
-        var cExtentions = contextExtensions;
+        var cExtentions = cmi5Controller.getContextExtensions();
 
-        if (verbName.toUpperCase() == "PASSED" || verbName.toUpperCase() == "FAILED") {
+        var success;
+
+        var verbUpper = verbName.toUpperCase();
+        if (verbUpper === "PASSED" || verbUpper === "FAILED") {
             // Passed and Failed statements require the masteryScore as an context extension
-            cExtentions["https://w3id.org/xapi/cmi5/context/extensions/masteryScore"] = masteryScore;
+            if (cmi5Controller.masteryScore) {
+                cExtentions["https://w3id.org/xapi/cmi5/context/extensions/masteryScore"] = cmi5Controller.masteryScore;
+            }
+
+            // Per section 9.5.2 of the cmi5 spec
+            success = verbUpper === "PASSED";
         }
+
+        // Automatically set complete based on cmi5 rules (9.5.3)
+        var complete = verbUpper === "COMPLETED";
 
         // Get basic cmi5 defined statement object
         var stmt = cmi5Controller.getcmi5DefinedStatement(verb,
-                                                          activityProperties,
-                                                          registration,
-                                                          contextActivities,
                                                           cExtentions);
 
         // Add UTC timestamp.  This is required by cmi5 spec.
@@ -53,24 +61,24 @@ function SendStatement(verbName, score, duration, progress) {
         if (success || complete || score || duration || progress) {
             stmt.result = {};
 
-            if (complete) {
-                stmt.result.completion = true;
+            if (typeof(complete) === "boolean") {
+                stmt.result.completion = complete;
             }
 
-            if (success) {
-                stmt.result.success = true;
+            if (typeof(success) === "boolean") {
+                stmt.result.success = success;
             }
 
-            if (score) {
+            if (typeof(score) === "number") {
                 stmt.result.score = { "scaled": parseFloat(score) };
             }
 
-            if (progress) {
+            if (typeof(progress) === "number") {
                 stmt.result.extensions = { "https://w3id.org/xapi/cmi5/result/extensions/progress": parseInt(progress) };
             }
 
             if (duration) {
-                stmt.result.duration = pt;
+                stmt.result.duration = duration;
             }
 
             // Statements that include success or complete must include a moveon activity in the context
