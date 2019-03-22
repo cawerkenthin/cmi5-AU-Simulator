@@ -144,7 +144,18 @@
             }
         },
         setObjectProperties: function(language_, type_,  name_, description_ ) {
-            // ToDo
+            cmi5Controller.object.definition = {};
+            if (type_) {
+                cmi5Controller.object.definition.type = type_;
+            }
+            if (!language_) language_ = "und";
+            if (name_) {
+                cmi5Controller.object.definition.name = {};
+                cmi5Controller.object.definition.name[language_] = name_;
+            }
+            if (description_) {
+                cmi5Controller.object.definition.description[language_] = description_;
+            }
         },
         setRegistration: function(registration) {
             if (registration) {
