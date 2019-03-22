@@ -121,7 +121,6 @@
         // cmi5 controller initialization
         startUp: function(callBack, errorCallBack) {                        
             initializedCallback = callBack;
-            Agent_ = JSON.parse(cmi5Controller.actor);
             cmi5Controller.getAuthToken(AuthTokenFetched, errorCallBack);
         },
         getContextActivities() {
@@ -144,6 +143,9 @@
                 console.log("Invalid value passed to setFetchUrl()");
             }
         },
+        setObjectProperties: function(language_, type_,  name_, description_ ) {
+            // ToDo
+        },
         setRegistration: function(registration) {
             if (registration) {
                 cmi5Controller.registration = registration;
@@ -159,9 +161,26 @@
             }
         },
         setActor: function(actor) {
+            Agent_ = JSON.parse(actor);
             if (actor) {
+                if (Agent_.objectType !== "Agent") {                                         
+                    console.log("In cmi5, the actor must have an objectType of Agent.");
+                    return;
+                }
+                if (Agent_.account === null) {
+                    console.log("In cmi5, the account property of an Agent is required.");
+                    return;
+                }
+                if (!Agent_.account.homePage) {
+                    console.log("In cmi5, the homePage property of an account is required.");
+                    return;
+                }
+                if (!Agent_.account.name) {
+                    console.log("In cmi5, the name property of an account is required.");
+                    return;
+                }
+
                 cmi5Controller.actor = actor;
-                // ToDo: validate actor has an account instead of mbox
             } else {
                 console.log("Invalid value passed to setActor()");
             }
@@ -252,6 +271,14 @@
             stmt_.context.extensions = contextExtensions_;
 
             return stmt_;
+        },
+        sendAllowedState: function(stateid_, statevalue_, matchHash_, noneMatchHash_, callback_) {        
+            ADL.XAPIWrapper.changeConfig(endPointConfig);
+            ADL.XAPIWrapper.sendState(cmi5Controller.activityId, stateid_, statevalue_, matchHash_, noneMatchHash_, callback_);
+        },
+        getAllowedState: function(stateid_, since_, callback_) {                                         
+            ADL.XAPIWrapper.changeConfig(endPointConfig);
+            ADL.XAPIWrapper.getState(cmi5Controller.activityId, Agent_, stateid_, cmi5Controller.registration, since_, callback_);
         },
         sendStatement: function (statement_, callback_) {
             ADL.XAPIWrapper.changeConfig(endPointConfig);
