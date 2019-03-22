@@ -30,6 +30,12 @@
         });
 
         function cmi5Ready() {
+            // Set additional properties for the xAPI object
+            cmi5Controller.setObjectProperties("en-US",
+                "http://adlnet.gov/expapi/activities/assessment",
+                "ADL AU Example 1",
+                "This is a simple of an AU.");
+
             // Send the initialized statement
             SendStatement("Initialized");
         }
