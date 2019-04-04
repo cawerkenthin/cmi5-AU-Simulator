@@ -123,6 +123,12 @@
             initializedCallback = callBack;
             cmi5Controller.getAuthToken(AuthTokenFetched, errorCallBack);
         },
+        getAUActivityId: function() {               
+            return cmi5Controller.activityId;
+        },
+        getReturnUrl: function() {                  
+            return cmi5Controller.returnURL;
+        },
         getContextActivities() {
             return contextActivities;
         },
@@ -154,6 +160,7 @@
                 cmi5Controller.object.definition.name[language_] = name_;
             }
             if (description_) {
+                cmi5Controller.object.definition.description = {};
                 cmi5Controller.object.definition.description[language_] = description_;
             }
         },
@@ -260,8 +267,8 @@
 
             return stmt_;
         },
-        getcmi5DefinedStatement: function (verb_, object_, , contextActivities_, contextExtensions_) {
-            stmt_ = GetBasicStatement(Agent_, verb_, object_);
+        getcmi5DefinedStatement: function (verb_, contextExtentions_) {
+            stmt_ = GetBasicStatement(verb_, cmi5Controller.object);      
 
             // Add registration
             stmt_.context = {};
