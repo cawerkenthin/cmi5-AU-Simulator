@@ -1,4 +1,14 @@
+function FinishAU() {
+    // ToDo List: 
+    // 1) Calculate duration
+    // 2) Move to controller
+    SendStatement("Terminated");
+    GoLMS();
+}
+
 function GoLMS() {  
+    // ToDo: Move to controller
+    var returnUrl = cmi5Controller.getReturnUrl(); 
     if ((typeof returnUrl) == "string" && returnUrl.length > 0) {
        var href = decodeURIComponent(returnUrl);
        document.location.href = href;
@@ -48,7 +58,8 @@ function SendStatement(verbName, score, duration, progress) {
         }
 
         // Automatically set complete based on cmi5 rules (9.5.3)
-        var complete = verbUpper === "COMPLETED";
+        var complete = null;                                        
+        if (verbUpper === "COMPLETED") complete = true;             
 
         // Get basic cmi5 defined statement object
         var stmt = cmi5Controller.getcmi5DefinedStatement(verb,
@@ -102,6 +113,7 @@ function SendStatement(verbName, score, duration, progress) {
 function sentStatement(resp, obj) {
     // This is the callback method referenced in call to cmi5Controller.sendStatement()
     if (resp && resp.status == 200) {
+        // ToDo: Display verb sent
         // statement was sent
         console.log("Statement sent");
     }
