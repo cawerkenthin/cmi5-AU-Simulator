@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -10,9 +10,13 @@
     <script src="Scripts/xapistatement.js"></script>
     <script src="Scripts/xapiwrapper.js"></script>
     <script src="Scripts/cmi5Wrapper.js"></script>
+    <link href="Content/bootstrap.min.css" rel="stylesheet" type="text/css" />      
+    <link href="Content/bootstrap-theme.min.css" rel="stylesheet" type="text/css" />
+    <link href="Content/prettify.min.css" rel="stylesheet" type="text/css" />       
     <script>
         // Get jquery into a local variable to improve performance
         var jq = $;
+        var testScore = 0;
 
         // jQuery init.  This is called once jQuery is fully loaded and ready to go.
         jq(function() {
@@ -44,11 +48,194 @@
             // This is called if there is an error in the cmi5 controller startUp method.
             alert("An error was detected in the cmi5Controller.startUp() method.  Please check the console log for any errors.");
         }
-    </script>
 
+        function SendChoice(questNo) {
+            // Disable calling button
+            jq("#btnSubmit" + questNo.toString()).prop("disabled", true);
+
+            // Build "choices" for the question
+            var activityId = cmi5Controller.getAUActivityId() + "/Test/Question/" + questNo.toString();
+            var correctAnswer = jq("#Correct" + questNo.toString()).val();
+            var choices = [];
+            var answerNo = 1;
+            jq("#Answers" + questNo.toString() + " option").each(function() {
+                choices.push({
+                    "id": activityId + "/Answer/" + answerNo.toString(),
+                    "description": { "en-US": jq(this).val() }
+                });
+                answerNo++;
+            });
+
+            // Make a cmi.interaction object for our question
+            var obj = {
+                "objectType": "Activity",
+                "id": activityId,
+                "definition": {
+                    "type": "http://adlnet.gov/expapi/activities/cmi.interaction",
+                    "name": { "en-US": "Test Question " + questNo.toString() },
+                    "description": { "en-US": jq("#Question" + questNo.toString()).html() },
+                    "interactionType": "choice",
+                    "correctResponsesPattern": [correctAnswer],
+                    "choices": choices
+                }
+            };
+
+            // Get the basic structure of a cmi5 "Allowed" statement
+            var stmt = cmi5Controller.getcmi5AllowedStatement(
+                ADL.verbs.answered,
+                obj,
+                cmi5Controller.getContextActivities(),
+                cmi5Controller.getContextExtensions());
+
+            // Create the result property
+            // Score: Assume a 2 question test, each question worth 50 points.
+            var response = jq("#Answers" + questNo.toString()).val();
+            var success = correctAnswer === response;
+            var points = success ? 50 : 0;
+            stmt.result = {
+                "success": success,
+                "response": response,
+                "score": {
+                    "raw": points,
+                    "min": 0,
+                    "max": 50
+                }
+            };
+
+            // Add points to the total points
+            testScore += points;
+
+            cmi5Controller.sendStatement(stmt, sentStatement);
+
+            jq("#btnNext").prop("disabled", false);
+
+            // Display the statement
+            jq("#list" + questNo.toString()).html(format(stmt));
+            jq("#results" + questNo.toString()).show();
+        }
+
+        function GoPage(pageNo) {
+            // Hides all pages except the requested page number.
+            jq(".page_").not("#page" + pageNo.toString()).hide();
+            jq("#page" + pageNo.toString()).show();
+        }
+
+        function CheckMoveOn() {
+            // Mastery score is scaled: between 0 and 1
+            var score = testScore / 100;
+
+            // Send passed/failed
+            if (score >= cmi5Controller.masteryScore) {
+                SendStatement("Passed", score);
+            } else {
+                SendStatement("Failed", score);
+            }
+
+            // Since the student reached page 2 of a two page course, it is completed
+            SendStatement("Completed");
+        }
+
+        function format(d) {
+            // `d` is the original data object for the row
+            return '<div><pre class="prettyprint lang-js">' +
+                JSON.stringify(d, null, 2) +
+                '</pre></div>';
+        }
+    </script>
 </head>
 <body>
-    Your content here
-</body>
+    <div class="page_ container" id="page1" style="margin-top: 12px;">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h3 class="panel-title">Training Page 1</h3>
+                    </div>
+                    <div class="col-md-8">
+                        <button style="float: right;" type="button" class="btn btn-default" onclick="FinishAU();">Return to LMS</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-4" id="Question1">Which Lamborghini Model do you like best?</div>
+                    <div class="col-md-4">
+                        <select id="Answers1" class="form-control">
+                            <option value="Aventador">Aventador</option>
+                            <option value="Gallardo">Gallardo</option>
+                            <option id="Correct1" value="Huracan (Correct)">Huracan (Correct)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button id="btnSubmit1" type="button" class="btn btn-default" onclick="SendChoice(1);">Submit</button>&nbsp;
+                        <button id="btnNext" type="button" disabled="disabled" class="btn btn-default" onclick="GoPage(2);">Next ></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="results1" style="display: none;">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="panel-title">Statement Sent</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <output id="list1"></output>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <div class="page_ container" id="page2" style="margin-top: 12px; display: none;">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h3 class="panel-title">Training Page 2</h3>
+                    </div>
+                    <div class="col-md-8">
+                        <button style="float: right;" type="button" class="btn btn-default" onclick="FinishAU();">Return to LMS</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-4" id="Question2">Which is the best trim package for a Huracan?</div>
+                    <div class="col-md-4">
+                        <select id="Answers2" class="form-control">
+                            <option value="Coupe">Coupe</option>
+                            <option value="Spyder">Spyder</option>
+                            <option value="Performante">Performante</option>
+                            <option id="Correct2" value="Evo (Correct)">Evo (Correct)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button id="btnSubmit2" type="button" class="btn btn-default" onclick="SendChoice(2);CheckMoveOn();">Submit</button>&nbsp;
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="results2" style="display: none;">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="panel-title">Statement Sent</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <output id="list2"></output>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
 </html>
