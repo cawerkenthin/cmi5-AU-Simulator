@@ -20,23 +20,31 @@ function GoLMS() {
 
 function SendStatement(verbName, score, duration, progress) {
     // What verb is to be sent?
+    var verbUpper = verbName.toUpperCase();
     var verb;
-    switch (verbName) {
-        case "Initialized":
+    switch (verbUpper) {
+        case "INITIALIZED":
             verb = ADL.verbs.initialized;
             break;
-        case "Completed":
+        case "COMPLETED":
             verb = ADL.verbs.completed;
             break;
-        case "Passed":
+        case "PASSED":
             verb = ADL.verbs.passed;
             break;
-        case "Failed":
+        case "FAILED":
             verb = ADL.verbs.failed;
             break;
-        case "Terminated":
+        case "TERMINATED":
             verb = ADL.verbs.terminated;
             break;
+    }
+    
+    if (cmi5Controller.launchMode.toUpperCase() !== "NORMAL") {
+        // Only initialized and terminated are allowed per section 10.0 of the spec.
+        if (verbUpper !== "TERMINATED" && verbUpper !== "INITIALIZED") {
+            console.log("When launchMode is " + cmi5Controller.launchMode + "only Initialized and Terminated verbs are allowed");
+        }
     }
 
     if (verb) {
@@ -46,7 +54,6 @@ function SendStatement(verbName, score, duration, progress) {
 
         var success;
 
-        var verbUpper = verbName.toUpperCase();
         if (verbUpper === "PASSED" || verbUpper === "FAILED") {
             // Passed and Failed statements require the masteryScore as an context extension
             if (cmi5Controller.masteryScore) {
@@ -113,9 +120,8 @@ function SendStatement(verbName, score, duration, progress) {
 function sentStatement(resp, obj) {
     // This is the callback method referenced in call to cmi5Controller.sendStatement()
     if (resp && resp.status == 200) {
-        // ToDo: Display verb sent
         // statement was sent
-        console.log("Statement sent");
+        console.log(cmi5Controller.getLastVerbSent() + " Statement sent");
     }
 }
 
