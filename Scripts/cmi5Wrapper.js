@@ -44,6 +44,7 @@ function SendStatement(verbName, score, duration, progress) {
         // Only initialized and terminated are allowed per section 10.0 of the spec.
         if (verbUpper !== "TERMINATED" && verbUpper !== "INITIALIZED") {
             console.log("When launchMode is " + cmi5Controller.launchMode + "only Initialized and Terminated verbs are allowed");
+            return false;
         }
     }
 
