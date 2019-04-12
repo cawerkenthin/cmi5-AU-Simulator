@@ -11,6 +11,7 @@
     var contextExtensions;
     var contextTemplate;
     var initializedCallback;
+    var lastVerbSent;
      
     // **********************
     // Public properties    
@@ -135,6 +136,9 @@
         getContextExtensions() {
             return contextExtensions;
         },
+        getLastVerbSent() {                                         
+            return lastVerbSent;
+        },
         setEndPoint: function(endpoint) {               
             if (endpoint) {
                 cmi5Controller.endPoint = endpoint;
@@ -254,8 +258,17 @@
             // Add registration
             stmt_.context = {};
             stmt_.context.registration = cmi5Controller.registration;
+            
+            // If context parms are not passed, use defaults from STATE.                   
+            if (!contextActivities_) {
+                contextActivities_ = cmi5Controller.getContextActivities();
+            }
 
-            // Context activities from State API
+            if (!contextExtensions_) {                                          
+                contextExtensions_ = cmi5Controller.getContextExtensions();
+            }
+
+            // Remove cmi5 category from context activities                    
             var z = contextActivities_;
             if (z.hasOwnProperty("category")) {
                 delete z.category;
@@ -269,6 +282,11 @@
         },
         getcmi5DefinedStatement: function (verb_, contextExtentions_) {
             stmt_ = GetBasicStatement(verb_, cmi5Controller.object);      
+            
+            // If context extensions not passed, use default.
+            if (!contextExtentions_) {                                          
+                contextExtentions_ = cmi5Controller.getContextExtensions();
+            }
 
             // Add registration
             stmt_.context = {};
@@ -299,6 +317,14 @@
             ADL.XAPIWrapper.getState(cmi5Controller.activityId, Agent_, stateid_, cmi5Controller.registration, since_, callback_);
         },
         sendStatement: function (statement_, callback_) {
+            if (statement_.verb.display["en-US"]) {
+                lastVerbSent = statement_.verb.display["en-US"];
+            } else if (statement_.verb.display["und"]) {
+                lastVerbSent = statement_.verb.display["und"];
+            } else {
+                lastVerbSent = statement_.verb.id;
+            }
+            
             ADL.XAPIWrapper.changeConfig(endPointConfig);
             ADL.XAPIWrapper.sendStatement(statement_, callback_);
         }
