@@ -118,14 +118,6 @@ function SendStatement(verbName, score, duration, progress) {
     return false;
 }
 
-function sentStatement(resp, obj) {
-    // This is the callback method referenced in call to cmi5Controller.sendStatement()
-    if (resp && resp.status == 200) {
-        // statement was sent
-        console.log(cmi5Controller.getLastVerbSent() + " Statement sent");
-    }
-}
-
 function parse(val) {
     // Utility function to parse command line parameters
     var result = "Not found",
