@@ -11,6 +11,7 @@ var cmi5Controller = (function () {
     var contextExtensions;
     var contextTemplate;
     var initializedCallback;
+    var startDateTime;
 
     // **********************
     // Public properties     
@@ -119,6 +120,7 @@ var cmi5Controller = (function () {
     return {
         // cmi5 controller initialization
         startUp: function(callBack, errorCallBack) {
+            startDateTime = new Date();
             initializedCallback = callBack;
             cmi5Controller.object = {
                 "objectType": "Activity",
@@ -132,11 +134,21 @@ var cmi5Controller = (function () {
         getReturnUrl: function() {                  
             return cmi5Controller.returnURL;
         },
-        getContextActivities() {
+        getContextActivities: function() {
             return contextActivities; 
         },
-        getContextExtensions() {
+        getContextExtensions: function() {
             return contextExtensions;  
+        },
+        goLMS: function() {
+            var returnUrl = cmi5Controller.getReturnUrl();                  
+            if ((typeof returnUrl) == "string" && returnUrl.length > 0) {
+                var href = decodeURIComponent(returnUrl);
+                document.location.href = href;
+                return false;
+            }
+            self.close();           // Not allowed in FireFox
+            return false;
         },
         setEndPoint: function(endpoint) {               
             if (endpoint) {
