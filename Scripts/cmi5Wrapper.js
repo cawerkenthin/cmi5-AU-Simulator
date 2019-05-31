@@ -1,21 +1,8 @@
 function FinishAU() {
     // ToDo List: 
     // 1) Calculate duration
-    // 2) Move to controller
     SendStatement("Terminated");
-    GoLMS();
-}
-
-function GoLMS() {  
-    // ToDo: Move to controller
-    var returnUrl = cmi5Controller.getReturnUrl(); 
-    if ((typeof returnUrl) == "string" && returnUrl.length > 0) {
-       var href = decodeURIComponent(returnUrl);
-       document.location.href = href;
-        return false;
-    }
-    self.close();           // Not allowed in FireFox
-    return false;
+    cmi5Controller.goLMS();
 }
 
 function SendStatement(verbName, score, duration, progress) {
