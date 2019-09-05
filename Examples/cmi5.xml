@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<courseStructure xmlns="https://w3id.org/xapi/profiles/cmi5/v1/CourseStructure.xsd">
+  <course id="http://course-repository.example.edu/identifiers/courses/09bAaecb">
+    <title>
+      <langstring lang="en-US">ADL Sample Course One</langstring>
+    </title>
+    <description>
+      <langstring lang="en-US">
+        This is an example of a course with a single AU.  The moveOn criteria is Completed.
+      </langstring>
+    </description>
+  </course>
+  <au id="http://course-repository.example.edu/identifiers/courses/09bAaecb/aus/5c09" moveOn="Completed" >
+    <title>
+      <langstring lang="en-US">AU Number 1</langstring>
+    </title>
+    <description>
+      <langstring lang="en-US">
+        A simple AU utilizing the ADL cmi5Controller library.
+      </langstring>
+    </description>
+    <url>AUExample1.html</url>
+  </au>
+</courseStructure>
