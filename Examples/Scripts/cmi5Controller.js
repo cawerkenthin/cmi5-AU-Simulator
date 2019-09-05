@@ -224,40 +224,41 @@ var cmi5Controller = (function () {
         },                                                                      
         // getAuthToken calls the fetch url to get the authorization token
         getAuthToken: function (successCallback, tokenErrorCallBack) {                    
-            jq.support.cors = true;
-            jq.ajax({
-                async: true,
-                url: cmi5Controller.fetchUrl,                               
-                type: "POST",
-                dataType: "json"
-            })
-            .done(function (data) {
-                // Check for error
-                var e = typeof (data["error-code"]);
-                if (e === "string") {
-                    console.log("error-code " + data["error-code"] + ": " + data["error-text"]);    
-                    if (tokenErrorCallBack && typeof tokenErrorCallBack === "function") { 
-                        tokenErrorCallBack("");                                           
-                    }
-                }
+            var myRequest = new XMLHttpRequest();
+            myRequest.open("POST", cmi5Controller.fetchUrl, true);
+            myRequest.onreadystatechange = function() {
+                if (this.readyState === 4) {
+                    if (this.status === 200) {
+                        var data = JSON.parse(myRequest.responseText);
 
-                e = typeof (data["auth-token"]);
-                if (e === "string") {
-                    cmi5Controller.authToken = data["auth-token"];        
-                    SetConfig(data["auth-token"]);                        
-                    if (successCallback && typeof successCallback === "function") { 
-                        successCallback();
-                    }
-                } else {
-                    console.log("Invalid structure returned: " + data.toString());
-                    if (tokenErrorCallBack && typeof tokenErrorCallBack === "function") { 
-                        tokenErrorCallBack("");
+                        // Check for error
+                        var e = typeof (data["error-code"]);
+                        if (e === "string") {
+                            console.log("error-code " + data["error-code"] + ": " + data["error-text"]);
+                            if (tokenErrorCallBack && typeof tokenErrorCallBack === "function") {
+                                tokenErrorCallBack("");
+                            }
+                        }
+
+                        e = typeof (data["auth-token"]);
+                        if (e === "string") {
+                            cmi5Controller.authToken = data["auth-token"];
+                            SetConfig(data["auth-token"]);
+                            if (successCallback && typeof successCallback === "function") {
+                                successCallback();
+                            }
+                        } else {
+                            console.log("Invalid structure returned: " + data.toString());
+                            if (tokenErrorCallBack && typeof tokenErrorCallBack === "function") {
+                                tokenErrorCallBack("");
+                            }
+                        }
+                    } else {
+                        console.log("Call to fetchUrl failed with status " + this.status.toString());
                     }
                 }
-            })
-            .fail(function (jqXHR, textStatus, errorThrown) {
-                tokenErrorCallBack(errorThrown);
-            });
+            }
+            myRequest.send();
         },
         getAgentProfile: function (callback) {        
             ADL.XAPIWrapper.changeConfig(endPointConfig);
