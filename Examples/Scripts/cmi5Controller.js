@@ -3,7 +3,6 @@ var cmi5Controller = (function () {
     // **********************
     // Private variables
     // **********************
-    var jq = $;         // Local copy of jquery ($)
     var stmt_;
     var Agent_;
     var endPointConfig;
