@@ -131,6 +131,9 @@ var cmi5Controller = (function () {
         getAUActivityId: function() {               
             return cmi5Controller.activityId;
         },
+         getMasteryScore: function() {
+            return cmi5Controller.masteryScore;
+        },
         getReturnUrl: function() {                  
             return cmi5Controller.returnURL;
         },
