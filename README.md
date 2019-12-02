@@ -1,6 +1,5 @@
 # cmi5-Client-Library
 
-### _Note: This project is currently under developement (and not in a working state)_
 
 ## Overview
 
