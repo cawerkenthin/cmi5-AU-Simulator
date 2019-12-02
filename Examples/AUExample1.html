@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>cmi5 AU</title>                      <!-- NEW -->
+    <title>cmi5 AU</title>                      
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="Scripts/cmi5Controller.js"></script>
-    <script src="Scripts/verbs.js"></script>
-    <script src="Scripts/cryptojs_V3.1.2.js"></script>
-    <script src="Scripts/xapistatement.js"></script>
-    <script src="Scripts/xapiwrapper.js"></script>
+    <script src="Scripts/xapiwrapper.min.js"></script>
     <script src="Scripts/cmi5Wrapper.js"></script>
     <link href="Content/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="Content/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
@@ -20,7 +17,10 @@
 
         // Other global vars
         var testScore = 0;
-        var statementsSent = [];        // NEW 
+        var statementsSent = [];  
+
+        // In this example, we will send "cmi5 allowed" statements for test questions.  Following cmi5 best practice,
+        // each question will be associated with an objective.
         var objectives = [
             {
                "en-US": "Indentify the best Lamborghini model" 
@@ -46,11 +46,22 @@
         });
 
         function cmi5Ready() {
-            // Set additional properties for the xAPI object
+            // This method was passed to the cmi5Controller.startup() call.
+
+            // Set additional properties for the xAPI object.
+            // The cmi5Controller already knows the object ID to use in cmi5-defined statements since it is passed on the launch command.  
+            // It does not know: 
+            // 1) The langstring used by the AU.
+            // 2) The actitityType
+            // 3) The name of the AU
+            // 4) The description of the AU
+            //
             cmi5Controller.setObjectProperties("en-US",
                 "http://adlnet.gov/expapi/activities/assessment",
                 "ADL AU Example 1",
                 "This is a simple of an AU.");
+
+            // Perform any other setup actions required by the AU here.
 
             // Send the initialized statement
             SendStatement("Initialized");
@@ -62,13 +73,16 @@
         }
 
         function SendChoice(questNo) {
+            // This method sends a "cmi5 allowed" statement for a test question used in this AU.
+
             // Disable calling button
             jq("#btnSubmit" + questNo.toString()).prop("disabled", true);
 
-            // Build "choices" for the question
+            // Build "choices" for the question.  For example purposes, the question ID is built by adding
+            // a string to the AU's activity ID.  The same is done for each answer.
             var activityId = cmi5Controller.getAUActivityId() +
                              "/Test/1/Question/" +
-                             questNo.toString(); // NEW - includes test number
+                             questNo.toString(); 
             var correctAnswer = jq("#Correct" + questNo.toString()).val();
             var choices = [];
             var answerNo = 1;
@@ -94,14 +108,14 @@
                 }
             };
 
-            // Get the basic structure of a cmi5 "Allowed" statement
+            // Get the basic structure of a "cmi5 allowed" statement
             var stmt = cmi5Controller.getcmi5AllowedStatement(
                 ADL.verbs.answered,
                 obj,
                 cmi5Controller.getContextActivities(),
                 cmi5Controller.getContextExtensions());
 
-            // Add the objective (cmi5 best practice)           // NEW
+            // Add the objective (cmi5 best practice)           
             var objective = {
                 "objectType": "Activity",
                 "id": cmi5Controller.getAUActivityId() +
@@ -136,8 +150,11 @@
             // Add points to the total points
             testScore += points;
 
+            // Send the "cmi5 allowed" statement using a controller method.  The second parameter is an optional
+            // callback function.
             cmi5Controller.sendStatement(stmt, sentStatement);
 
+            // Enable the "next" button
             jq("#btnNext").prop("disabled", false);
         }
 
@@ -152,21 +169,22 @@
             var score = testScore / 100;
 
             // Send passed/failed
-            if (score >= cmi5Controller.masteryScore) {
+            if (score >= cmi5Controller.getMasteryScore()) {
                 SendStatement("Passed", score);
             } else {
                 SendStatement("Failed", score);
             }
 
-            // Since the student reached page 2 of a two page course, it is completed
+            // Since the student reached page 2 of a two page course, it is completed.
+            // Send a "cmi5 defined" completed statement.
             SendStatement("Completed");
         }
 
-        function sentStatement(resp, obj) {     // NEW: Moved from wrapper
+        function sentStatement(resp, obj) {     
             // This is the callback method referenced in call to cmi5Controller.sendStatement()
             if (resp && resp.status === 200) {
 
-                // Statement was successfully sent.  Add to the drop down selector of the statement viewer.
+                // Statement was successfully sent.  Add statement to the drop down selector of the statement viewer.
                 for (var i = 0; i < statementsSent.length; i++) {
                     var valueToFind = "value='" + i.toString() + "'";
                     var isFound = jq("option[" + valueToFind + "]");
@@ -198,6 +216,7 @@
         }
 
         function format(d) {
+            // This function formats JSON for display on screen.
             return '<div><pre class="prettyprint lang-js">' +
                 JSON.stringify(d, null, 2) +
                 '</pre></div>';
