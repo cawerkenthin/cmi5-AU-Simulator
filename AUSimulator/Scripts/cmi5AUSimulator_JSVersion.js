@@ -312,7 +312,7 @@ function parse(val) {
         .split("&")
         .forEach(function (item) {
             tmp = item.split("=");
-            if (tmp[0].toUpperCase() === val) result = decodeURIComponent(tmp[1]);
+            if (tmp[0].toUpperCase() === val) result = decodeURIComponent(item.slice((-1 * (item.length - item.indexOf("=")-1))));
         });
     return result;
 }
